@@ -819,6 +819,13 @@ export default function ExamPage() {
               const answer = answers[question.id];
               const isFlagged = flaggedQuestions.has(question.id);
 
+              // Debug logging for each question
+              console.log(`[Question ${idx + 1}] ID: ${question.id}`)
+              console.log(`[Question ${idx + 1}] Type: ${question.question_type_name}`)
+              console.log(`[Question ${idx + 1}] Has options:`, !!question.options)
+              console.log(`[Question ${idx + 1}] Options count:`, question.options?.length || 0)
+              console.log(`[Question ${idx + 1}] Options data:`, question.options)
+
               return (
                 <Card key={`${question.id}-${idx}`} id={`question-${idx}`} className={isFlagged ? 'border-amber-300 border-2' : ''}>
                   <CardHeader>
@@ -892,49 +899,63 @@ export default function ExamPage() {
                     {/* MCQ, True/False, Dropdown Questions */}
                     {(question.question_type_name === 'MCQ' || 
                       question.question_type_name === 'True/False' || 
-                      question.question_type_name === 'Dropdown') && question.options && question.options.length > 0 && (
-                      <RadioGroup
-                        value={answer?.selectedOption !== undefined ? answer.selectedOption.toString() : ""}
-                        onValueChange={(value) => {
-                          if (examControls?.allow_answer_change || !answer) {
-                            handleAnswerChange(value, question.id, true);
-                            setCurrentQuestionIndex(idx);
-                          }
-                        }}
-                        disabled={!examControls?.allow_answer_change && !!answer}
-                      >
-                        <div className="space-y-3">
-                          {question.options.map((option, optIdx: number) => (
-                            <div 
-                              key={option.id} 
-                              onClick={() => {
-                                if (examControls?.allow_answer_change || !answer) {
-                                  handleAnswerChange(optIdx.toString(), question.id, true)
-                                  setCurrentQuestionIndex(idx)
-                                }
-                              }}
-                              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                                (!examControls?.allow_answer_change && answer) 
-                                  ? 'bg-gray-50 dark:bg-gray-900 cursor-not-allowed opacity-60' 
-                                  : 'hover:bg-accent'
-                              }`}
-                            >
-                              <RadioGroupItem 
-                                value={optIdx.toString()} 
-                                id={`option-${question.id}-${optIdx}`}
-                                disabled={!examControls?.allow_answer_change && !!answer}
-                              />
-                              <Label 
-                                htmlFor={`option-${question.id}-${optIdx}`} 
-                                className={`flex-1 ${(!examControls?.allow_answer_change && answer) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                              >
-                                <span className="font-semibold mr-2">{option.option_label}.</span>
-                                {option.option_text}
-                              </Label>
+                      question.question_type_name === 'Dropdown' ||
+                      (question.options && question.options.length > 0)) && (
+                      <>
+                        {/* Debug: Show raw options data */}
+                        {(!question.options || question.options.length === 0) && (
+                          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-200 mb-3">
+                            ⚠️ DEBUG: No options found for this question!
+                            <br />Question ID: {question.id}
+                            <br />Options: {JSON.stringify(question.options)}
+                          </div>
+                        )}
+                        
+                        {question.options && question.options.length > 0 && (
+                          <RadioGroup
+                            value={answer?.selectedOption !== undefined ? answer.selectedOption.toString() : ""}
+                            onValueChange={(value) => {
+                              if (examControls?.allow_answer_change || !answer) {
+                                handleAnswerChange(value, question.id, true);
+                                setCurrentQuestionIndex(idx);
+                              }
+                            }}
+                            disabled={!examControls?.allow_answer_change && !!answer}
+                          >
+                            <div className="space-y-3">
+                              {question.options.map((option, optIdx: number) => (
+                                <div 
+                                  key={option.id} 
+                                  onClick={() => {
+                                    if (examControls?.allow_answer_change || !answer) {
+                                      handleAnswerChange(optIdx.toString(), question.id, true)
+                                      setCurrentQuestionIndex(idx)
+                                    }
+                                  }}
+                                  className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                                    (!examControls?.allow_answer_change && answer) 
+                                      ? 'bg-gray-50 dark:bg-gray-900 cursor-not-allowed opacity-60' 
+                                      : 'hover:bg-accent'
+                                  }`}
+                                >
+                                  <RadioGroupItem 
+                                    value={optIdx.toString()} 
+                                    id={`option-${question.id}-${optIdx}`}
+                                    disabled={!examControls?.allow_answer_change && !!answer}
+                                  />
+                                  <Label 
+                                    htmlFor={`option-${question.id}-${optIdx}`} 
+                                    className={`flex-1 ${(!examControls?.allow_answer_change && answer) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                  >
+                                    <span className="font-semibold mr-2">{option.option_label}.</span>
+                                    {option.option_text}
+                                  </Label>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </RadioGroup>
+                          </RadioGroup>
+                        )}
+                      </>
                     )}
 
                     {/* Short Answer, Essay, Fill in Blank Questions */}

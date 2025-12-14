@@ -13,14 +13,20 @@ const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: process.env.SMTP_SECURE === 'true',
-  auth: {
+  auth: process.env.SMTP_USER && process.env.SMTP_PASSWORD ? {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
-  },
+  } : undefined,
 })
 
 export async function sendEmail(options: EmailOptions) {
   try {
+    // Check if SMTP is configured
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+      console.warn('[Email] SMTP not configured. Email sending disabled.');
+      return { success: false, messageId: null }
+    }
+
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
@@ -32,7 +38,8 @@ export async function sendEmail(options: EmailOptions) {
 
     return { success: true, messageId: info.messageId }
   } catch (error: any) {
-    throw new Error('Failed to send email: ' + error.message)
+    console.error('[Email] Failed to send email:', error.message)
+    return { success: false, error: error.message }
   }
 }
 

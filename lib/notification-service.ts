@@ -19,7 +19,7 @@ export async function createNotification(data: NotificationData) {
     
     await pool.query(
       `INSERT INTO notifications 
-       (id, recipient_id, sender_id, type, title, message, link) 
+       (id, user_id, sender_id, type, title, message, link) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         notificationId,

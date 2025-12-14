@@ -173,6 +173,11 @@ export async function POST(request: NextRequest) {
         for (const question of questions) {
           const options = optionsByQuestion[question.id] || []
           
+          // Set default question type if null but has options
+          if (!question.question_type_name && options.length > 0) {
+            question.question_type_name = 'MCQ'
+          }
+          
           // ✅ Apply question shuffling based on settings
           question.options = shuffleQuestionOptions(
             options,
@@ -315,6 +320,12 @@ export async function POST(request: NextRequest) {
       // This ensures the same student always sees options in the same order for a specific attempt
       for (const question of questions) {
         const options = optionsByQuestion[question.id] || []
+        
+        // Set default question type if null but has options
+        if (!question.question_type_name && options.length > 0) {
+          question.question_type_name = 'MCQ'
+        }
+        
         question.options = shuffleQuestionOptions(
           options,
           decoded.userId,
@@ -324,6 +335,17 @@ export async function POST(request: NextRequest) {
         )
       }
     }
+
+    console.log('[Start API] ======== QUESTIONS WITH OPTIONS ========')
+    console.log('[Start API] Total questions:', questions.length)
+    questions.forEach((q, idx) => {
+      console.log(`[Start API] Question ${idx + 1}:`, q.id)
+      console.log(`[Start API]   - Type:`, q.question_type_name)
+      console.log(`[Start API]   - Has options:`, !!q.options)
+      console.log(`[Start API]   - Options count:`, q.options?.length || 0)
+      console.log(`[Start API]   - Options:`, q.options)
+    })
+    console.log('[Start API] =======================================')
 
     return NextResponse.json({
       attemptId,
