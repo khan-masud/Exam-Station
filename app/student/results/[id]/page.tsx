@@ -184,6 +184,17 @@ export default function ResultsPage() {
               <p className="text-xs text-muted-foreground">Duration: {result.durationMinutes}m</p>
             </CardContent>
           </Card>
+
+          {/* Negative Marking Card */}
+          {result.negativeMarksDeducted > 0 && (
+            <Card className="border-red-200 bg-red-50/50">
+              <CardContent className="p-4 sm:p-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-1">Penalty</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 mb-1">-{(result.negativeMarksDeducted || 0).toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">Negative Marking</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Score Breakdown */}
@@ -248,171 +259,6 @@ export default function ResultsPage() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {result.totalQuestions > 0 ? Math.round((result.unanswered / result.totalQuestions) * 100) : 0}% Skipped
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Negative Marking Card */}
-        <Card className="mb-6 border-amber-200 bg-amber-50/50">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Negative Marking Summary</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Marks deducted for incorrect answers</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Negative Marking Rate */}
-              <div className="p-4 rounded-lg bg-card border border-amber-200">
-                <p className="text-xs text-muted-foreground mb-2">Negative Marking Rate</p>
-                <p className="text-2xl font-bold text-amber-600 mb-1">
-                  {result.negativeMarkingApplied} marks
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  per wrong answer
-                </p>
-              </div>
-
-              {/* Wrong Answers */}
-              <div className="p-4 rounded-lg bg-card border border-amber-200">
-                <p className="text-xs text-muted-foreground mb-2">Wrong Answers</p>
-                <p className="text-2xl font-bold text-red-600 mb-1">
-                  {result.wrongAnswers}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  incorrect responses
-                </p>
-              </div>
-
-              {/* Total Deduction */}
-              <div className="p-4 rounded-lg bg-card border border-amber-200">
-                <p className="text-xs text-muted-foreground mb-2">Total Deduction</p>
-                <p className="text-2xl font-bold text-red-600 mb-1">
-                  -{(result.negativeMarksDeducted || 0).toFixed(2)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  marks deducted
-                </p>
-              </div>
-            </div>
-            
-            {/* Score Calculation */}
-            <div className="mt-6 pt-6 border-t border-amber-200 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Marks for correct answers:</span>
-                <span className="font-semibold">+{(result.scoreObtained + (result.negativeMarksDeducted || 0)).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Negative marking deduction:</span>
-                <span className="font-semibold text-red-600">-{(result.negativeMarksDeducted || 0).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between border-t border-amber-200 pt-2 text-base font-bold">
-                <span>Final Score:</span>
-                <span className="text-amber-600">{result.scoreObtained}/{result.totalScore}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Passing Marks Card */}
-        <Card className="mb-6 border-teal-200 bg-teal-50/50">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Passing Marks Summary</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Required vs obtained marks</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Passing Marks Required */}
-              <div className="p-4 rounded-lg bg-card border border-teal-200">
-                <p className="text-xs text-muted-foreground mb-2">Passing Marks Required</p>
-                <p className="text-2xl font-bold text-teal-600 mb-1">
-                  {result.passingMarks}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  out of {result.totalScore} marks
-                </p>
-              </div>
-
-              {/* Marks Obtained */}
-              <div className={`p-4 rounded-lg bg-card border ${result.result === "Pass" ? "border-green-200" : "border-red-200"}`}>
-                <p className="text-xs text-muted-foreground mb-2">Marks Obtained</p>
-                <p className={`text-2xl font-bold mb-1 ${result.result === "Pass" ? "text-green-600" : "text-red-600"}`}>
-                  {result.scoreObtained}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.result === "Pass" ? `Passed by ${result.scoreObtained - result.passingMarks} marks` : `Short by ${result.passingMarks - result.scoreObtained} marks`}
-                </p>
-              </div>
-
-              {/* Margin */}
-              <div className={`p-4 rounded-lg bg-card border ${Math.abs(result.scoreObtained - result.passingMarks) > 10 ? "border-blue-200" : "border-orange-200"}`}>
-                <p className="text-xs text-muted-foreground mb-2">Margin</p>
-                <p className={`text-2xl font-bold mb-1 ${result.result === "Pass" ? "text-blue-600" : "text-orange-600"}`}>
-                  {Math.abs(result.scoreObtained - result.passingMarks)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.result === "Pass" ? "marks above requirement" : "marks below requirement"}
-                </p>
-              </div>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-6 pt-6 border-t">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Progress to Passing</span>
-                <span className="text-sm font-bold">{Math.min(100, Math.round((result.scoreObtained / result.passingMarks) * 100))}%</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                <div
-                  className={`h-3 rounded-full transition-all duration-500 ${result.result === "Pass" ? "bg-green-500" : "bg-red-500"}`}
-                  style={{ width: `${Math.min(100, Math.round((result.scoreObtained / result.passingMarks) * 100))}%` }}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Efficiency Metrics */}
-        <Card className="mb-6">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <BarChart3 className="w-5 h-5" />
-              Performance Analysis
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Time efficiency and achievement metrics</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Score vs Passing */}
-              <div className="p-4 rounded-lg bg-card border">
-                <p className="text-xs text-muted-foreground mb-2">Achievement Ratio</p>
-                <p className="text-2xl font-bold text-primary mb-1">
-                  {result.passingScore > 0 ? Math.round((result.percentage / result.passingScore) * 100) : 0}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  of passing threshold ({result.passingScore}%)
-                </p>
-              </div>
-
-              {/* Time Efficiency */}
-              <div className="p-4 rounded-lg bg-card border">
-                <p className="text-xs text-muted-foreground mb-2">Time Efficiency</p>
-                <p className="text-2xl font-bold text-amber-600 mb-1">
-                  {result.durationMinutes > 0 ? Math.round((result.timeSpentSeconds / (result.durationMinutes * 60)) * 100) : 0}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  of allocated time used
-                </p>
-              </div>
-
-              {/* Questions Per Minute */}
-              <div className="p-4 rounded-lg bg-card border">
-                <p className="text-xs text-muted-foreground mb-2">Speed</p>
-                <p className="text-2xl font-bold text-green-600 mb-1">
-                  {result.timeSpentSeconds > 0 ? ((result.totalQuestions / result.timeSpentSeconds) * 60).toFixed(1) : 0}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  questions per minute
                 </p>
               </div>
             </div>
