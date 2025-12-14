@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
         attemptId: existingAttempt.id,
         exam: {
           ...exam,
-          proctoring_enabled: proctoringSettings.proctoringEnabled,
+          proctoring_enabled: exam.proctoring_enabled === 1,
         },
         examControls,
         proctoringSettings,
@@ -351,7 +351,7 @@ export async function POST(request: NextRequest) {
       attemptId,
       exam: {
         ...exam,
-        proctoring_enabled: proctoringSettings.proctoringEnabled,
+        proctoring_enabled: exam.proctoring_enabled === 1,
       },
       examControls,
       proctoringSettings,

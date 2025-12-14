@@ -149,6 +149,7 @@ export default function ExamPage() {
       console.log('[Frontend] startTime from API:', data.startTime)
       console.log('[Frontend] totalTimeSpent from API:', data.totalTimeSpent)
       console.log('[Frontend] exam.duration_minutes:', data.exam.duration_minutes)
+      console.log('[Frontend] exam.proctoring_enabled:', data.exam.proctoring_enabled)
       console.log('[Frontend] examControls:', data.examControls)
       
       console.log('[Frontend] Questions received:', data.questions)
@@ -1093,14 +1094,14 @@ export default function ExamPage() {
         {/* Sidebar - Proctoring & Progress - Sticky */}
         <div className="lg:col-span-1 space-y-4 lg:space-y-6">
           <div className="lg:sticky lg:top-4">
-            {attemptData.exam.proctoring_enabled && (
+            {attemptData.exam.proctoring_enabled === true && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Proctoring</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <WebcamMonitor
-                    enabled={attemptData.exam.proctoring_enabled}
+                    enabled={true}
                     onFaceDetectionEvent={handleFaceDetectionEvent}
                   />
                 </CardContent>
