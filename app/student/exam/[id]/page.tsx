@@ -73,6 +73,7 @@ export default function ExamPage() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [examStartTime, setExamStartTime] = useState<number>(0)  // Time when exam actually started on server
   const [startingExam, setStartingExam] = useState(false)  // Loading state for starting exam
+  const [isFullscreenExited, setIsFullscreenExited] = useState(false)  // Track if user exited fullscreen
   
   const autosaveInterval = useRef<NodeJS.Timeout | null>(null)
   const timerInterval = useRef<NodeJS.Timeout | null>(null)
@@ -329,22 +330,17 @@ export default function ExamPage() {
     }
 
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && attemptData && instructionsAccepted) {
+      if (!document.fullscreenElement && attemptData && instructionsAccepted && !isSubmitting) {
+        // User exited fullscreen during exam
+        setIsFullscreenExited(true)
         recordAntiCheatEvent('fullscreen_exit', 'critical', { 
-          description: 'Exited fullscreen mode - Attempting to re-enter',
+          description: 'Exited fullscreen mode',
           timestamp: Date.now()
         })
-        
-        // Try to re-enter fullscreen
-        setTimeout(() => {
-          const elem = document.documentElement
-          if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(err => {
-              console.log('Could not re-enter fullscreen:', err)
-              toast.error('Fullscreen was exited! Please re-enter fullscreen mode to continue the exam.')
-            })
-          }
-        }, 500)
+        toast.error('You exited fullscreen mode! Please click the button to re-enter fullscreen.')
+      } else if (document.fullscreenElement && isFullscreenExited) {
+        // User re-entered fullscreen
+        setIsFullscreenExited(false)
       }
     }
 
@@ -608,6 +604,15 @@ export default function ExamPage() {
         throw new Error('No result ID received from server')
       }
       
+      // Exit fullscreen after successful submission
+      if (document.fullscreenElement) {
+        try {
+          await document.exitFullscreen()
+        } catch (err) {
+          console.warn('Could not exit fullscreen:', err)
+        }
+      }
+      
       toast.success('Exam submitted successfully!')
       router.push(`/student/results/${data.resultId}`)
     } catch (error) {
@@ -621,6 +626,22 @@ export default function ExamPage() {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const handleReenterFullscreen = async () => {
+    try {
+      const elem = document.documentElement
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen()
+      } else if ((elem as any).webkitRequestFullscreen) {
+        await (elem as any).webkitRequestFullscreen()
+      }
+      setIsFullscreenExited(false)
+      toast.success('Fullscreen mode restored')
+    } catch (error) {
+      console.error('Failed to enter fullscreen:', error)
+      toast.error('Could not enter fullscreen. Please try again.')
+    }
   }
 
   if (loading) {
@@ -767,11 +788,45 @@ export default function ExamPage() {
   const timeWarning = timeRemaining < 300
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6 relative">
       {showWarning && (
         <div className="fixed top-0 left-0 right-0 bg-destructive text-destructive-foreground p-3 text-center z-50">
           <AlertCircle className="w-4 h-4 inline mr-2" />
           Warning: Window focus lost! This activity has been recorded.
+        </div>
+      )}
+
+      {/* Fullscreen Exit Overlay */}
+      {isFullscreenExited && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="w-6 h-6" />
+                Fullscreen Mode Required
+              </CardTitle>
+              <CardDescription>
+                You have exited fullscreen mode. Please re-enter fullscreen to continue your exam.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg text-sm">
+                <p className="font-semibold text-amber-900 dark:text-amber-100 mb-2">⚠️ Important:</p>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 dark:text-amber-100">
+                  <li>Your exam is still running and time is counting</li>
+                  <li>This violation has been recorded</li>
+                  <li>Click the button below to continue</li>
+                </ul>
+              </div>
+              <Button
+                onClick={handleReenterFullscreen}
+                className="w-full"
+                size="lg"
+              >
+                Enter Fullscreen Mode
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
 
