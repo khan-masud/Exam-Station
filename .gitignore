@@ -1,0 +1,121 @@
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Next.js / Build
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+.installed
+.built
+
+# Environment variables (never commit these)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Keep example env files
+!.env.example
+!.env.example.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE and Editor files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+temp/
+tmp/
+.temp/
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Uploads and user-generated content
+/public/uploads/*
+!public/uploads/.gitkeep
+
+# Backups
+/backups/*
+!backups/.gitkeep
+
+# Vercel
+.vercel/
+
+# Production-specific (optional - only if using CI/CD)
+# Uncomment if using serverless or other deployment
+# .serverless/
+# .env.production
+
+# Git
+.git/
+
+# NPM
+npm-cache/
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# pnpm
+.pnpm-store/
+
+# Testing
+jest-coverage/
+.coverage/
+htmlcov/
+
+# Build artifacts
+*.tar.gz
+*.zip
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

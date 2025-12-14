@@ -1,0 +1,51 @@
+{
+  "name": "Exam System",
+  "short_name": "ExamSys",
+  "description": "Online Examination Management System with Real-time Features and Offline Support",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/placeholder-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/student/dashboard",
+      "icons": [{ "src": "/placeholder-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Browse Exams",
+      "short_name": "Exams",
+      "description": "Browse available exams",
+      "url": "/student/browse-exams",
+      "icons": [{ "src": "/placeholder-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Rankings",
+      "short_name": "Rankings",
+      "description": "View leaderboard",
+      "url": "/student/rankings",
+      "icons": [{ "src": "/placeholder-logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

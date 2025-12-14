@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Exam System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #1a202c;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 16px;
+      color: #718096;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #fee;
+      border-radius: 50px;
+      margin-bottom: 30px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #f56565;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .status-text {
+      color: #c53030;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .retry-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .retry-btn:active {
+      transform: translateY(0);
+    }
+
+    .features {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .features h3 {
+      font-size: 18px;
+      color: #2d3748;
+      margin-bottom: 16px;
+    }
+
+    .feature-list {
+      text-align: left;
+      color: #718096;
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    .feature-list li {
+      list-style: none;
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #48bb78;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    
+    <h1>You're Offline</h1>
+    
+    <div class="status">
+      <div class="status-dot"></div>
+      <span class="status-text">No Internet Connection</span>
+    </div>
+
+    <p>
+      It looks like you've lost your internet connection. Don't worry, some features 
+      are still available offline!
+    </p>
+
+    <button class="retry-btn" onclick="location.reload()">
+      Try Again
+    </button>
+
+    <div class="features">
+      <h3>Available Offline</h3>
+      <ul class="feature-list">
+        <li>View cached exam content</li>
+        <li>Review previous results</li>
+        <li>Access downloaded materials</li>
+        <li>Your submissions will sync when you're back online</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Auto-retry when online
+    window.addEventListener('online', () => {
+      console.log('Connection restored')
+      setTimeout(() => {
+        location.reload()
+      }, 1000)
+    })
+
+    // Check connection status
+    setInterval(() => {
+      if (navigator.onLine) {
+        location.reload()
+      }
+    }, 5000)
+  </script>
+</body>
+</html>

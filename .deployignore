@@ -1,0 +1,35 @@
+# Files/folders to EXCLUDE when uploading build to production
+# These should NOT be included in your deployment
+
+/node_modules
+/.git
+/.gitignore
+/.github
+/scripts
+/.vscode
+/backups
+npm-debug.log
+yarn-debug.log
+*.tsbuildinfo
+
+# Development only
+.env.example
+/app
+/components
+/context
+/hooks
+/lib
+/public/*.md
+/styles
+/types
+/middleware.ts
+tsconfig.json
+next.config.mjs
+postcss.config.mjs
+README.md
+*.zip
+
+# IDE
+.vscode
+.DS_Store
+Thumbs.db
