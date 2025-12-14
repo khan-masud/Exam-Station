@@ -296,7 +296,7 @@ export default function ProgramRankingsPage() {
                         {getRankBadge(perf.rank)}
                       </div>
                       <p className={`text-sm font-semibold ${getPercentileColor(perf.percentile)}`}>
-                        Top {100 - perf.percentile}%
+                        Top {Math.max(1, Math.round((perf.rank / perf.totalParticipants) * 100))}%
                       </p>
                     </div>
                   </div>

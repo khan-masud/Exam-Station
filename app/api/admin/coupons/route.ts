@@ -11,23 +11,30 @@ export async function GET(req: NextRequest) {
     const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
+      console.log('No auth token found')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const decoded = verifyToken(token)
+    const decoded = await verifyToken(token)
+    console.log('Token decoded:', decoded?.userId, decoded?.role)
+    
     if (!decoded || decoded.role !== 'admin') {
+      console.log('User is not admin or token invalid')
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
+    console.log('Fetching coupons from database...')
     const [coupons] = await pool.query(`
       SELECT 
         c.*,
         u.full_name as created_by_name,
         u.email as created_by_email
       FROM coupons c
-      LEFT JOIN users u ON c.created_by = u.id
+      LEFT JOIN users u ON c.created_by COLLATE utf8mb4_general_ci = u.id
       ORDER BY c.created_at DESC
     `) as any
+
+    console.log('Coupons fetched:', coupons?.length || 0)
 
     // Validate that coupons is an array
     if (!Array.isArray(coupons)) {
@@ -36,9 +43,13 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ coupons })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch coupons:', error)
-    return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 })
+    console.error('Error details:', error.message, error.stack)
+    return NextResponse.json({ 
+      error: 'Failed to fetch coupons',
+      details: error.message 
+    }, { status: 500 })
   }
 }
 
@@ -52,7 +63,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const decoded = verifyToken(token)
+    const decoded = await verifyToken(token)
     if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }

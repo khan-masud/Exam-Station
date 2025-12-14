@@ -28,15 +28,16 @@ export async function GET(request: NextRequest) {
       SELECT 
         u.id as userId,
         u.full_name as userName,
-        COALESCE(SUM(er.percentage), 0) as totalScore,
+        COALESCE(SUM(er.obtained_marks), 0) as totalScore,
         COALESCE(ROUND(AVG(er.percentage), 2), 0) as avgScore,
         COUNT(DISTINCT er.exam_id) as examsCompleted,
         IF(u.id = ?, 1, 0) as isCurrentUser
       FROM users u
       JOIN program_enrollments pe ON pe.user_id = u.id AND pe.program_id = ?
       LEFT JOIN exam_results er ON er.student_id = u.id
-      LEFT JOIN exams e ON er.exam_id = e.id AND e.program_id = ?
+      LEFT JOIN exam_programs ep ON er.exam_id = ep.exam_id AND ep.program_id = ?
       WHERE pe.status = 'active'
+      AND (er.id IS NULL OR ep.id IS NOT NULL)
       GROUP BY u.id, u.full_name
       ORDER BY totalScore DESC, avgScore DESC
       LIMIT 100

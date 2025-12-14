@@ -88,12 +88,21 @@ export default function BrowseExamsPage() {
     }
   }
 
+  const isExamToday = (exam: Exam) => {
+    if (!exam.startDate) return false
+    const examDate = new Date(exam.startDate)
+    const today = new Date()
+    return examDate.getDate() === today.getDate() &&
+      examDate.getMonth() === today.getMonth() &&
+      examDate.getFullYear() === today.getFullYear()
+  }
+
   const getFilteredExams = () => {
     let exams = allExams
 
     // Apply filter
     if (filter === 'live') {
-      exams = exams.filter(exam => exam.isLive && !exam.isMissed)
+      exams = exams.filter(exam => exam.isLive && !exam.isMissed && isExamToday(exam))
     } else if (filter === 'missed') {
       exams = exams.filter(exam => exam.isMissed)
     } else if (filter === 'upcoming') {
@@ -204,7 +213,7 @@ export default function BrowseExamsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Live Exams</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {allExams.filter(e => e.programId === programIdParam && e.isLive && !e.isMissed).length}
+                    {allExams.filter(e => e.programId === programIdParam && e.isLive && !e.isMissed && isExamToday(e)).length}
                   </p>
                 </div>
                 <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
@@ -347,7 +356,7 @@ export default function BrowseExamsPage() {
 // Exam Card Component
 function ExamCard({ exam, compact = false }: { exam: Exam; compact?: boolean }) {
   // Ensure only relevant content is rendered
-  const hasMetadata = exam.subject || exam.difficultyLevel || exam.isMissed || (exam.isLive && !exam.isMissed) || exam.hasAttempted;
+  const hasMetadata = !!exam.subject || !!exam.difficultyLevel || !!exam.isMissed || (!!exam.isLive && !exam.isMissed) || !!exam.hasAttempted;
 
   return (
     <Card className="hover:shadow-lg transition-all border-l-4 border-l-primary/50">
@@ -357,13 +366,12 @@ function ExamCard({ exam, compact = false }: { exam: Exam; compact?: boolean }) 
             {String(exam.title || '').trim()}
           </CardTitle>
           {hasMetadata && (
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              {exam.subject && (
+            <div className="flex flex-wrap items-center gap-2 mt-2">{!!exam.subject && (
                 <Badge variant="outline" className="text-xs font-medium">
                   {String(exam.subject || '').trim()}
                 </Badge>
               )}
-              {exam.difficultyLevel && (
+              {!!exam.difficultyLevel && (
                 <Badge 
                   variant="secondary" 
                   className={`text-xs ${
@@ -375,22 +383,22 @@ function ExamCard({ exam, compact = false }: { exam: Exam; compact?: boolean }) 
                   {String(exam.difficultyLevel || '').trim()}
                 </Badge>
               )}
-              {exam.isMissed && (
+              {!!exam.isMissed && (
                 <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-100 text-xs">
                   Missed - Retake
                 </Badge>
               )}
-              {exam.isLive && !exam.isMissed && (
+              {!!exam.isLive && !exam.isMissed && (
                 <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 text-xs">
                   Live Now
                 </Badge>
               )}
-              {exam.isUpcoming && !exam.isMissed && !exam.isLive && (
+              {!!exam.isUpcoming && !exam.isMissed && !exam.isLive && (
                 <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100 text-xs">
                   Upcoming
                 </Badge>
               )}
-              {exam.hasAttempted && (
+              {!!exam.hasAttempted && (
                 <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-100 text-xs">
                   Attempted
                 </Badge>

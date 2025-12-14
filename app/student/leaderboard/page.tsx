@@ -589,10 +589,10 @@ export default function LeaderboardPage() {
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-muted-foreground">Progress</span>
                         <span className="font-semibold">
-                          {Math.round((perf.examsCompleted / perf.totalExams) * 100)}%
+                          {perf.totalExams > 0 ? Math.round((perf.examsCompleted / perf.totalExams) * 100) : 0}%
                         </span>
                       </div>
-                      <Progress value={(perf.examsCompleted / perf.totalExams) * 100} />
+                      <Progress value={perf.totalExams > 0 ? (perf.examsCompleted / perf.totalExams) * 100 : 0} />
                     </div>
 
                     {perf.trend !== 'stable' && (

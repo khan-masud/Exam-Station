@@ -112,11 +112,18 @@ export function CouponManagement() {
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Coupons loaded:', data.coupons)
         setCoupons(data.coupons || [])
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to load coupons:', response.status, errorData)
+        toast.error(errorData.error || 'Failed to load coupons')
+        setCoupons([])
       }
     } catch (error) {
       console.error('Failed to load coupons:', error)
       toast.error('Failed to load coupons')
+      setCoupons([])
     } finally {
       setLoading(false)
     }

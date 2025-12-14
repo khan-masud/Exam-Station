@@ -21,14 +21,20 @@ export async function GET(request: NextRequest) {
       SELECT 
         p.id as programId,
         p.title as programTitle,
-        COALESCE(SUM(er.percentage), 0) as totalScore,
+        COALESCE(SUM(er.obtained_marks), 0) as totalScore,
         COALESCE(ROUND(AVG(er.percentage), 2), 0) as avgScore,
         COUNT(DISTINCT er.exam_id) as examsCompleted,
-        (SELECT COUNT(*) FROM exams WHERE program_id = p.id) as totalExams,
+        (
+          SELECT COUNT(DISTINCT ep_sub.exam_id) 
+          FROM exam_programs ep_sub 
+          JOIN exams e_sub ON ep_sub.exam_id = e_sub.id 
+          WHERE ep_sub.program_id = p.id AND e_sub.status = 'published'
+        ) as totalExams,
         (SELECT COUNT(DISTINCT user_id) FROM program_enrollments WHERE program_id = p.id AND status = 'active') as totalParticipants
       FROM program_enrollments pe
       JOIN programs p ON pe.program_id = p.id
-      LEFT JOIN exams e ON e.program_id = p.id
+      LEFT JOIN exam_programs ep ON ep.program_id = p.id
+      LEFT JOIN exams e ON e.id = ep.exam_id
       LEFT JOIN exam_results er ON er.exam_id = e.id AND er.student_id = ?
       WHERE pe.user_id = ? AND pe.status = 'active'
       GROUP BY p.id, p.title
@@ -41,12 +47,13 @@ export async function GET(request: NextRequest) {
         const allScores = await query(`
           SELECT 
             u.id as userId,
-            COALESCE(SUM(er.percentage), 0) as totalScore
+            COALESCE(SUM(er.obtained_marks), 0) as totalScore
           FROM users u
           JOIN program_enrollments pe ON pe.user_id = u.id AND pe.program_id = ?
           LEFT JOIN exam_results er ON er.student_id = u.id
-          LEFT JOIN exams e ON er.exam_id = e.id AND e.program_id = ?
+          LEFT JOIN exam_programs ep ON er.exam_id = ep.exam_id AND ep.program_id = ?
           WHERE pe.status = 'active'
+          AND (er.id IS NULL OR ep.id IS NOT NULL)
           GROUP BY u.id
           ORDER BY totalScore DESC
         `, [perf.programId, perf.programId]) as any[]
@@ -58,8 +65,8 @@ export async function GET(request: NextRequest) {
         const recentExams = await query(`
           SELECT percentage
           FROM exam_results er
-          JOIN exams e ON er.exam_id = e.id
-          WHERE er.student_id = ? AND e.program_id = ?
+          JOIN exam_programs ep ON er.exam_id = ep.exam_id
+          WHERE er.student_id = ? AND ep.program_id = ?
           ORDER BY er.result_date DESC
           LIMIT 6
         `, [userId, perf.programId]) as any[]
