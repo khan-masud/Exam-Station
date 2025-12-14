@@ -137,7 +137,7 @@ export default function ResultsListPage() {
           <Link href="/student/dashboard" className="text-primary hover:underline text-sm flex items-center gap-1">
             ← Back to Dashboard
           </Link>
-          <Link href="/student/exams" className="text-primary hover:underline text-sm flex items-center gap-1">
+          <Link href="/student/browse-exams" className="text-primary hover:underline text-sm flex items-center gap-1">
             My Exams
           </Link>
         </div>
@@ -273,7 +273,7 @@ export default function ResultsListPage() {
                   : 'Complete some exams to see your results here'}
               </p>
               {!searchTerm && (
-                <Link href="/student/exams">
+                <Link href="/student/browse-exams">
                   <Button>
                     Browse Available Exams
                   </Button>

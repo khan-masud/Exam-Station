@@ -165,7 +165,7 @@ export const emailTemplates = {
             </ul>
 
             <p style="text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/student/exams" class="button">Go to My Exams</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/student/browse-exams" class="button">Go to Browse Exams</a>
             </p>
 
             <p>Good luck!</p>

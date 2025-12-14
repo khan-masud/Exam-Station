@@ -90,7 +90,7 @@ export default function ExamPage() {
         if (!response.ok) {
           const error = await response.json()
           toast.error(error.error || 'Failed to load exam')
-          router.push('/student/exams')
+          router.push('/student/browse-exams')
           return
         }
 
@@ -111,7 +111,7 @@ export default function ExamPage() {
       } catch (error) {
         console.error('Fetch exam error:', error)
         toast.error('Failed to load exam')
-        router.push('/student/exams')
+        router.push('/student/browse-exams')
       }
     }
 
@@ -142,6 +142,9 @@ export default function ExamPage() {
       console.log('[Frontend] totalTimeSpent from API:', data.totalTimeSpent)
       console.log('[Frontend] exam.duration_minutes:', data.exam.duration_minutes)
       console.log('[Frontend] examControls:', data.examControls)
+      
+      console.log('[Frontend] Questions received:', data.questions)
+      console.log('[Frontend] First question options:', data.questions?.[0]?.options)
       
       setAttemptData(data)
       
@@ -629,7 +632,7 @@ export default function ExamPage() {
   }
 
   // Show instructions modal before exam has started (if we have exam data but not attemptData yet)
-  if (programInstructions || examInstructions) {
+  if (!loading && !attemptData && (programInstructions || examInstructions)) {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6">
         {/* Instructions Modal */}
@@ -698,6 +701,50 @@ export default function ExamPage() {
             </div>
           </Card>
         </div>
+      </div>
+    )
+  }
+
+  // If no instructions, show a simple start exam page
+  if (!loading && !attemptData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Ready to Start?</CardTitle>
+            <CardDescription>
+              Click the button below to begin your exam.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg text-sm">
+              <p className="font-semibold text-amber-900 dark:text-amber-100 mb-2">Important:</p>
+              <ul className="list-disc list-inside space-y-1 text-amber-900 dark:text-amber-100">
+                <li>Do not close or minimize this browser window during the exam</li>
+                <li>Do not refresh the page - your progress is auto-saved</li>
+                <li>Complete the exam within the allocated time</li>
+                <li>Answer all questions to the best of your ability</li>
+              </ul>
+            </div>
+          </CardContent>
+          <div className="flex gap-3 p-6 border-t">
+            <Button
+              variant="default"
+              onClick={handleStartExam}
+              disabled={startingExam}
+              className="flex-1"
+            >
+              {startingExam ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Starting Exam...
+                </>
+              ) : (
+                'Start Exam'
+              )}
+            </Button>
+          </div>
+        </Card>
       </div>
     )
   }
@@ -845,7 +892,7 @@ export default function ExamPage() {
                     {/* MCQ, True/False, Dropdown Questions */}
                     {(question.question_type_name === 'MCQ' || 
                       question.question_type_name === 'True/False' || 
-                      question.question_type_name === 'Dropdown') && question.options && (
+                      question.question_type_name === 'Dropdown') && question.options && question.options.length > 0 && (
                       <RadioGroup
                         value={answer?.selectedOption !== undefined ? answer.selectedOption.toString() : ""}
                         onValueChange={(value) => {
@@ -915,6 +962,15 @@ export default function ExamPage() {
                           className="resize-none"
                         />
                       </>
+                    )}
+
+                    {/* Debug: Show if options are missing */}
+                    {(question.question_type_name === 'MCQ' || 
+                      question.question_type_name === 'True/False' || 
+                      question.question_type_name === 'Dropdown') && (!question.options || question.options.length === 0) && (
+                      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-200">
+                        ⚠️ Options are not available for this question. Please contact support.
+                      </div>
                     )}
 
                     {/* Explanation (if available) */}
@@ -1037,8 +1093,7 @@ export default function ExamPage() {
             </Card>
           </div>
         </div>
-        </div>
-      )}
+      </div>
 
       {/* Submission Confirmation Modal */}
       {showSubmitConfirmation && (
@@ -1089,7 +1144,7 @@ export default function ExamPage() {
             </div>
           </Card>
         </div>
-      </div>
+      )}
     </div>
   )
 }

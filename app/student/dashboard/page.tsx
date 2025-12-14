@@ -353,7 +353,7 @@ export default function StudentDashboard() {
                     )}
                     <Button 
                       className="w-full bg-red-600 hover:bg-red-700 text-white" 
-                      onClick={() => router.push(`/student/exams/${exam.id}`)}
+                      onClick={() => router.push(`/student/exam/${exam.id}`)}
                     >
                       <Zap className="w-4 h-4 mr-2" />
                       Start Now

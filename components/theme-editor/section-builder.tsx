@@ -18,7 +18,7 @@ interface SectionBuilderProps {
 const pages = [
   { value: "/landing", label: "Landing Page" },
   { value: "/dashboard", label: "Dashboard" },
-  { value: "/student/exams", label: "Student Exams" },
+  { value: "/student/browse-exams", label: "Browse Exams" },
   { value: "/admin/dashboard", label: "Admin Dashboard" },
 ]
 

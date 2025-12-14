@@ -80,7 +80,7 @@ export function StudentSidebar() {
     if (pathname === href) return true
     // Check if current path starts with href (for nested routes)
     // Special handling for exam routes to avoid conflicts
-    if (href === "/student/exams" && pathname.startsWith("/student/exam/")) return true
+    if (href === "/student/browse-exams" && pathname.startsWith("/student/exam/")) return true
     if (pathname.startsWith(href + '/')) return true
     return false
   }

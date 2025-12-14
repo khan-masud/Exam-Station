@@ -443,7 +443,7 @@ function ExamCard({ exam, compact = false }: { exam: Exam; compact?: boolean }) 
         </div>
 
         {/* Action Button */}
-        <Link href={`/student/exams/${exam.id}`}>
+        <Link href={`/student/exam/${exam.id}`}>
           <Button className="w-full" size={compact ? "sm" : "default"} variant={exam.hasAttempted ? "outline" : "default"}>
             {exam.hasAttempted ? 'Retake Exam' : exam.isLive ? 'Start Exam Now' : 'View Details'}
           </Button>
