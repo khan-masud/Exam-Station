@@ -143,6 +143,23 @@ export default function ResultsPage() {
           Back to Dashboard
         </Link>
 
+        {/* Final Score Card - Highlighted at Top */}
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <Card className="w-full max-w-md border-4 border-primary bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 shadow-xl">
+            <CardContent className="p-8 sm:p-10 text-center">
+              <p className="text-sm sm:text-base text-primary font-semibold mb-2 uppercase tracking-wide">Final Score</p>
+              <p className="text-5xl sm:text-6xl font-bold text-primary mb-3">
+                {result.scoreObtained}<span className="text-3xl sm:text-4xl text-primary/60"> / {result.totalScore}</span>
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {result.negativeMarksDeducted > 0 
+                  ? `After ${result.negativeMarksDeducted.toFixed(2)} marks penalty`
+                  : 'Total Marks Obtained'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Performance Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {/* Score Card */}
@@ -195,75 +212,34 @@ export default function ResultsPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Correct Answers Card */}
+          <Card className="border-green-200 bg-green-50/50">
+            <CardContent className="p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Correct</p>
+              <p className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">{result.correctAnswers}</p>
+              <p className="text-xs text-muted-foreground">Right Answers</p>
+            </CardContent>
+          </Card>
+
+          {/* Wrong Answers Card */}
+          <Card className="border-red-200 bg-red-50/50">
+            <CardContent className="p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Wrong</p>
+              <p className="text-2xl sm:text-3xl font-bold text-red-600 mb-1">{result.wrongAnswers}</p>
+              <p className="text-xs text-muted-foreground">Incorrect Answers</p>
+            </CardContent>
+          </Card>
+
+          {/* Unanswered Card */}
+          <Card className="border-gray-200 bg-gray-50/50">
+            <CardContent className="p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Skipped</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-600 mb-1">{result.unanswered}</p>
+              <p className="text-xs text-muted-foreground">Unanswered</p>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Score Breakdown */}
-        <Card className="mb-6">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Answer Statistics</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Breakdown of your answers</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Correct Answers */}
-              <div>
-                <div className="flex justify-between text-xs sm:text-sm mb-3">
-                  <span className="font-medium">Correct Answers</span>
-                  <span className="font-bold text-green-600">
-                    {result.correctAnswers} / {result.totalQuestions}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3 mb-2">
-                  <div
-                    className="bg-green-500 h-3 rounded-full"
-                    style={{ width: `${result.totalQuestions > 0 ? (result.correctAnswers / result.totalQuestions) * 100 : 0}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {result.totalQuestions > 0 ? Math.round((result.correctAnswers / result.totalQuestions) * 100) : 0}% Success Rate
-                </p>
-              </div>
-
-              {/* Wrong Answers */}
-              <div>
-                <div className="flex justify-between text-xs sm:text-sm mb-3">
-                  <span className="font-medium">Wrong Answers</span>
-                  <span className="font-bold text-red-600">
-                    {result.wrongAnswers} / {result.totalQuestions}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3 mb-2">
-                  <div
-                    className="bg-red-500 h-3 rounded-full"
-                    style={{ width: `${result.totalQuestions > 0 ? (result.wrongAnswers / result.totalQuestions) * 100 : 0}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {result.totalQuestions > 0 ? Math.round((result.wrongAnswers / result.totalQuestions) * 100) : 0}% Error Rate
-                </p>
-              </div>
-
-              {/* Unanswered */}
-              <div>
-                <div className="flex justify-between text-xs sm:text-sm mb-3">
-                  <span className="font-medium">Unanswered</span>
-                  <span className="font-bold text-gray-600">
-                    {result.unanswered} / {result.totalQuestions}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3 mb-2">
-                  <div
-                    className="bg-gray-500 h-3 rounded-full"
-                    style={{ width: `${result.totalQuestions > 0 ? (result.unanswered / result.totalQuestions) * 100 : 0}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {result.totalQuestions > 0 ? Math.round((result.unanswered / result.totalQuestions) * 100) : 0}% Skipped
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Category Breakdown */}
         {result.categoryResults && result.categoryResults.length > 0 && (
@@ -298,20 +274,6 @@ export default function ResultsPage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-6">
-          <Button className="w-full sm:w-auto text-sm sm:text-base">
-            <Download className="w-4 h-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Download Report</span>
-            <span className="sm:hidden">Download</span>
-          </Button>
-          <Button variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
-            <Share2 className="w-4 h-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Share Results</span>
-            <span className="sm:hidden">Share</span>
-          </Button>
-        </div>
 
         {/* Question Review */}
         <Card>

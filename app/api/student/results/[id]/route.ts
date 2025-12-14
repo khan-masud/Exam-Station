@@ -88,9 +88,16 @@ export async function GET(
     const timeSpentMinutes = Math.floor(timeSpentSeconds / 60)
     const timeSpentHours = Math.floor(timeSpentMinutes / 60)
     const timeSpentMins = timeSpentMinutes % 60
-    const timeSpent = timeSpentHours > 0 
-      ? `${timeSpentHours}h ${timeSpentMins}m`
-      : `${timeSpentMins}m`
+    const timeSpentSecs = timeSpentSeconds % 60
+    
+    let timeSpent = '0s'
+    if (timeSpentHours > 0) {
+      timeSpent = `${timeSpentHours}h ${timeSpentMins}m`
+    } else if (timeSpentMinutes > 0) {
+      timeSpent = `${timeSpentMins}m ${timeSpentSecs}s`
+    } else if (timeSpentSeconds > 0) {
+      timeSpent = `${timeSpentSecs}s`
+    }
 
         // Build response first (fast track)
     const response = {
@@ -111,11 +118,11 @@ export async function GET(
       percentage: result.percentage || 0,
       result: (result.obtained_marks || 0) >= (result.passing_marks || 40) ? 'Pass' : 'Fail',
       
-      // Answer statistics
+      // Answer statistics - Calculate from actual exam questions
       correctAnswers: result.correct_answers || 0,
       wrongAnswers: result.incorrect_answers || 0,
-      unanswered: result.unanswered || 0,
-      totalQuestions: (result.correct_answers || 0) + (result.incorrect_answers || 0) + (result.unanswered || 0),
+      totalQuestions: 0, // Will be calculated from actual questions below
+      unanswered: 0, // Will be calculated as totalQuestions - (correct + wrong)
       
       // Negative Marking
       negativeMarkingApplied: result.negative_marking_applied || 0.25,
@@ -141,7 +148,7 @@ export async function GET(
     try {
       // Get all questions for this exam
       const questions = await query(
-        `SELECT 
+        `SELECT DISTINCT
           q.id as question_id,
           q.question_text,
           q.question_image,
@@ -158,6 +165,7 @@ export async function GET(
          INNER JOIN questions q ON eq.question_id = q.id
          LEFT JOIN exam_answers ea ON q.id = ea.question_id AND ea.attempt_id = ?
          WHERE eq.exam_id = ?
+         GROUP BY q.id, eq.sequence
          ORDER BY eq.sequence ASC`,
         [result.attempt_id, result.exam_id]
       ) as any[]
@@ -201,6 +209,10 @@ export async function GET(
         }
         optionsMap[opt.question_id].push(opt)
       })
+      
+      // Calculate total questions and unanswered
+      response.totalQuestions = questions.length
+      response.unanswered = response.totalQuestions - (response.correctAnswers + response.wrongAnswers)
       
       // Build question review with correct answer matching
       response.questionReview = questions.map(q => {

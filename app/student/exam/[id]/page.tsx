@@ -673,20 +673,12 @@ export default function ExamPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {programInstructions && (
+              {(programInstructions || examInstructions) && (
                 <div>
-                  <h3 className="font-semibold text-base mb-3 text-primary">Program Instructions</h3>
-                  <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700 text-sm whitespace-pre-wrap leading-relaxed">
-                    {programInstructions}
-                  </div>
-                </div>
-              )}
-              
-              {examInstructions && (
-                <div>
-                  <h3 className="font-semibold text-base mb-3 text-primary">Exam-Specific Instructions</h3>
-                  <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700 text-sm whitespace-pre-wrap leading-relaxed">
-                    {examInstructions}
+                  <h3 className="font-semibold text-base mb-3 text-primary">Instructions</h3>
+                  <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700 text-sm whitespace-pre-wrap leading-relaxed space-y-4">
+                    {programInstructions && <div>{programInstructions}</div>}
+                    {examInstructions && <div>{examInstructions}</div>}
                   </div>
                 </div>
               )}
