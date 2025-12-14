@@ -302,7 +302,10 @@ export default function ExamSetterPage() {
       })
       if (!response.ok) throw new Error('Failed to fetch exam programs')
       const data = await response.json()
-      setSelectedPrograms(new Set(data.programs?.map((p: any) => p.id) || []))
+      console.log('[Exam Setter] Fetched exam programs:', data.programs)
+      const programIds = data.programs?.map((p: any) => p.id) || []
+      console.log('[Exam Setter] Setting selected programs:', programIds)
+      setSelectedPrograms(new Set(programIds))
     } catch (error) {
       console.error('Failed to fetch exam programs:', error)
     }

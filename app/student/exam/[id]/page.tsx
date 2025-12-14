@@ -96,6 +96,10 @@ export default function ExamPage() {
 
         const data = await response.json()
         
+        console.log('[Exam Details] Fetched data:', data)
+        console.log('[Exam Details] Program instructions:', data.programInstructions)
+        console.log('[Exam Details] Exam instructions:', data.exam.instructions)
+        
         // Set instructions from exam and program
         if (data.exam.instructions) {
           setExamInstructions(data.exam.instructions)
@@ -103,6 +107,9 @@ export default function ExamPage() {
         if (data.programInstructions) {
           setProgramInstructions(data.programInstructions)
         }
+        
+        console.log('[Exam Details] State set - programInstructions:', data.programInstructions)
+        console.log('[Exam Details] State set - examInstructions:', data.exam.instructions)
         
         // Store exam controls for later use
         setExamControls(data.examControls)
