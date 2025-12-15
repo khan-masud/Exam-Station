@@ -76,7 +76,8 @@ export async function GET(req: NextRequest) {
       
       const response = new NextResponse(xmlContent)
       response.headers.set('Content-Type', 'application/xml; charset=utf-8')
-      response.headers.set('Content-Dispos
+      response.headers.set('Content-Disposition', 'attachment; filename="transactions.xml"')
+      return response
     }
   } catch (error: any) {
     console.error('[Export API] Error:', error)
