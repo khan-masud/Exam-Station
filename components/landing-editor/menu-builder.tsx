@@ -54,7 +54,6 @@ export default function MenuBuilder({ onMenusChange }: MenuBuilderProps) {
         setGroupedMenus(data.groupedMenus || {})
       }
     } catch (error) {
-      console.error('Failed to fetch menu items:', error)
       toast.error('Failed to load menu items')
     } finally {
       setLoading(false)
@@ -95,7 +94,6 @@ export default function MenuBuilder({ onMenusChange }: MenuBuilderProps) {
       toast.success('Menu order updated')
       onMenusChange?.()
     } catch (error) {
-      console.error('Failed to update menu order:', error)
       toast.error('Failed to update menu order')
     }
   }
@@ -136,7 +134,6 @@ export default function MenuBuilder({ onMenusChange }: MenuBuilderProps) {
       await fetchMenuItems()
       onMenusChange?.()
     } catch (error: any) {
-      console.error('Failed to delete menu item:', error)
       toast.error(error.message || 'Failed to delete menu item')
     }
   }
@@ -174,7 +171,6 @@ export default function MenuBuilder({ onMenusChange }: MenuBuilderProps) {
       await fetchMenuItems()
       onMenusChange?.()
     } catch (error: any) {
-      console.error('Failed to save menu item:', error)
       toast.error(error.message || 'Failed to save menu item')
     }
   }

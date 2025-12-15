@@ -125,7 +125,6 @@ export default function AdminDashboard() {
         setVisitorTrend(data.visitorTrend || [])
       }
     } catch (error) {
-      console.error('Failed to fetch dashboard data:', error)
     } finally {
       setLoading(false)
       setRefreshing(false)

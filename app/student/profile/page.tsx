@@ -61,7 +61,7 @@ export default function ProfilePage() {
         profilePicture: data.profilePicture || ''
       })
     } catch (error) {
-      console.error('Failed to fetch profile:', error)
+
       toast.error('Failed to load profile')
     } finally {
       setLoading(false)

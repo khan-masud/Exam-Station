@@ -54,7 +54,6 @@ export default function SectionBuilder({ onSectionsChange }: SectionBuilderProps
         setSections(data.sections || [])
       }
     } catch (error) {
-      console.error('Failed to fetch sections:', error)
       toast.error('Failed to load sections')
     } finally {
       setLoading(false)
@@ -91,7 +90,6 @@ export default function SectionBuilder({ onSectionsChange }: SectionBuilderProps
       toast.success('Section order updated')
       onSectionsChange?.()
     } catch (error) {
-      console.error('Failed to update section order:', error)
       toast.error('Failed to update section order')
     }
   }
@@ -115,7 +113,6 @@ export default function SectionBuilder({ onSectionsChange }: SectionBuilderProps
       toast.success(`Section ${!section.is_visible ? 'shown' : 'hidden'}`)
       onSectionsChange?.()
     } catch (error) {
-      console.error('Failed to toggle visibility:', error)
       toast.error('Failed to update section visibility')
     }
   }
@@ -208,7 +205,6 @@ export default function SectionBuilder({ onSectionsChange }: SectionBuilderProps
       await fetchSections()
       onSectionsChange?.()
     } catch (error: any) {
-      console.error('Failed to save section:', error)
       toast.error(error.message || 'Failed to save section')
     } finally {
       setSaving(false)

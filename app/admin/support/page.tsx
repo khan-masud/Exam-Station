@@ -59,7 +59,6 @@ export default function AdminSupportDashboard() {
         urgent_count: allTickets.filter((t: any) => t.priority === 'urgent').length
       })
     } catch (error) {
-      console.error('Error fetching tickets:', error)
       toast.error('Failed to load support tickets')
     } finally {
       setLoading(false)

@@ -72,7 +72,6 @@ export default function ExamsPage() {
         setSubjects(data.subjects || [])
       }
     } catch (error) {
-      console.error('Error fetching subjects:', error)
     }
   }
 
@@ -99,11 +98,9 @@ export default function ExamsPage() {
         }))
         setExams(transformedExams)
       } else {
-        console.error('Failed to fetch exams:', response.statusText)
         setExams([])
       }
     } catch (error) {
-      console.error('Error fetching exams:', error)
       setExams([])
     }
     setLoading(false)
@@ -227,7 +224,6 @@ export default function ExamsPage() {
         }
       }
     } catch (error) {
-      console.error('Error saving exam:', error)
       toast.error('Failed to save exam')
     }
   }
@@ -248,7 +244,6 @@ export default function ExamsPage() {
           toast.error(error.error || 'Failed to delete exam')
         }
       } catch (error) {
-        console.error('Error deleting exam:', error)
         toast.error('Failed to delete exam')
       }
     }
@@ -271,7 +266,6 @@ export default function ExamsPage() {
         toast.error(error.error || 'Failed to update status')
       }
     } catch (error) {
-      console.error('Error updating exam status:', error)
       toast.error('Failed to update exam status')
     }
   }

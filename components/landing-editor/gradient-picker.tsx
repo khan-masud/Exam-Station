@@ -46,7 +46,6 @@ export default function GradientPicker({ value, onChange, label = "Gradient" }: 
         setPresets(data.presets || [])
       }
     } catch (error) {
-      console.error('Failed to fetch gradient presets:', error)
     }
   }
 

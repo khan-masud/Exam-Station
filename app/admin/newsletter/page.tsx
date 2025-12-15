@@ -96,7 +96,6 @@ export default function NewsletterPage() {
       setSubject("")
       setMessage("")
     } catch (error: any) {
-      console.error("Error sending newsletter:", error)
       toast.error(error.message || "Failed to send newsletter")
     } finally {
       setSending(false)

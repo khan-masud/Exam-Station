@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
         toast.success('Analytics refreshed successfully')
       }
     } catch (error) {
-      console.error('Failed to fetch analytics:', error)
+
       toast.error('Failed to load analytics')
     } finally {
       setLoading(false)

@@ -15,7 +15,6 @@ function getAppRoot(): string {
   // First priority: use cwd() if package.json exists there
   const cwd = process.cwd()
   if (existsSync(path.join(cwd, 'package.json'))) {
-    console.log('[Install] Using app root from cwd():', cwd)
     return cwd
   }
 
@@ -23,11 +22,9 @@ function getAppRoot(): string {
   const root = possibleRoots.find(r => r && existsSync(path.join(r, 'package.json')))
   
   if (root) {
-    console.log('[Install] Using app root (found package.json):', root)
     return root
   }
   
-  console.log('[Install] Could not find app root with package.json, using cwd:', cwd)
   return cwd
 }
 
@@ -43,16 +40,13 @@ const ENV_PATH = path.join(APP_ROOT, ".env")
  */
 export async function isInstalledServer(): Promise<boolean> {
   try {
-    console.log('[Install] Checking installation status at:', { APP_ROOT, INSTALL_FLAG_PATH, ENV_PATH })
     
     // Check for installation flag file
     let installedFileExists = false
     try {
       await fs.access(INSTALL_FLAG_PATH)
       installedFileExists = true
-      console.log('[Install] ✓ .installed flag file found at:', INSTALL_FLAG_PATH)
     } catch (err: any) {
-      console.log('[Install] ✗ .installed flag file not found at:', INSTALL_FLAG_PATH, '(error:', err?.message || String(err), ')')
     }
     
     // Check if .env file exists
@@ -62,18 +56,14 @@ export async function isInstalledServer(): Promise<boolean> {
       envFileExists = true
       const envContent = await fs.readFile(ENV_PATH, 'utf-8')
       const hasDbConfig = envContent.includes('DB_HOST') && envContent.includes('DB_NAME')
-      console.log('[Install] ✓ .env file found at:', ENV_PATH, '(has DB config:', hasDbConfig, ')')
       envFileExists = hasDbConfig // Only consider installed if .env has DB config
     } catch (err: any) {
-      console.log('[Install] ✗ .env file not found or unreadable at:', ENV_PATH, '(error:', err?.message || String(err), ')')
     }
 
     const isInstalled = installedFileExists && envFileExists
-    console.log('[Install] Installation status:', { installed: isInstalled, installedFileExists, envFileExists, APP_ROOT })
     
     return isInstalled
   } catch (error) {
-    console.error('[Install] Error checking installation status:', error)
     return false
   }
 }
@@ -90,7 +80,6 @@ export async function markAsInstalled(installData: {
   adminEmail: string
 }): Promise<void> {
   try {
-    console.log('[Install] Writing .installed flag file to:', INSTALL_FLAG_PATH)
     
     const content = JSON.stringify(installData, null, 2)
     await fs.writeFile(INSTALL_FLAG_PATH, content, 'utf-8')
@@ -98,12 +87,9 @@ export async function markAsInstalled(installData: {
     // Verify the file was actually written
     const written = await fs.readFile(INSTALL_FLAG_PATH, 'utf-8')
     if (written.includes(installData.adminEmail)) {
-      console.log('[Install] ✓ .installed flag file successfully written and verified')
     } else {
-      console.error('[Install] ✗ .installed flag file written but verification failed')
     }
   } catch (error: any) {
-    console.error('[Install] Failed to write .installed flag file:', error)
     throw new Error(`Failed to mark installation: ${error.message}`)
   }
 }
@@ -124,20 +110,15 @@ export async function writeEnvFile(envVars: Record<string, string>): Promise<voi
       })
       .join('\n')
 
-    console.log('[Install] Writing .env file to:', ENV_PATH)
-    console.log('[Install] .env content keys:', Object.keys(envVars).join(', '))
     
     await fs.writeFile(ENV_PATH, envContent + '\n', 'utf-8')
     
     // Verify the file was actually written
     const written = await fs.readFile(ENV_PATH, 'utf-8')
     if (written.includes('DB_HOST')) {
-      console.log('[Install] ✓ .env file successfully written and verified')
     } else {
-      console.error('[Install] ✗ .env file written but verification failed')
     }
   } catch (error: any) {
-    console.error('[Install] Failed to write .env file:', error)
     throw new Error(`Failed to write .env file: ${error.message}`)
   }
 }

@@ -35,7 +35,6 @@ export default function SupportTicketsPage() {
       const data = await response.json()
       setTickets(data.tickets || [])
     } catch (error) {
-      console.error('Error fetching tickets:', error)
       toast.error('Failed to load support tickets')
     } finally {
       setLoading(false)

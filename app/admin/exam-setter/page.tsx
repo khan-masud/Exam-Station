@@ -249,7 +249,6 @@ export default function ExamSetterPage() {
       const data = await response.json()
       setExams(data.exams || [])
     } catch (error) {
-      console.error('Failed to fetch exams:', error)
       toast.error('Failed to load exams')
     } finally {
       setLoading(false)
@@ -265,7 +264,6 @@ export default function ExamSetterPage() {
       const data = await response.json()
       setSubjects(data.subjects || [])
     } catch (error) {
-      console.error('Failed to fetch subjects:', error)
     }
   }
 
@@ -278,7 +276,6 @@ export default function ExamSetterPage() {
       const data = await response.json()
       setTopics(data.topics || [])
     } catch (error) {
-      console.error('Failed to fetch topics:', error)
     }
   }
 
@@ -291,7 +288,6 @@ export default function ExamSetterPage() {
       const data = await response.json()
       setPrograms(data.programs || [])
     } catch (error) {
-      console.error('Failed to fetch programs:', error)
     }
   }
 
@@ -302,12 +298,9 @@ export default function ExamSetterPage() {
       })
       if (!response.ok) throw new Error('Failed to fetch exam programs')
       const data = await response.json()
-      console.log('[Exam Setter] Fetched exam programs:', data.programs)
       const programIds = data.programs?.map((p: any) => p.id) || []
-      console.log('[Exam Setter] Setting selected programs:', programIds)
       setSelectedPrograms(new Set(programIds))
     } catch (error) {
-      console.error('Failed to fetch exam programs:', error)
     }
   }
 
@@ -318,12 +311,6 @@ export default function ExamSetterPage() {
       })
       if (!response.ok) throw new Error('Failed to fetch exam details')
       const data = await response.json()
-      console.log('[Exam Setter] Fetched exam details:', {
-        proctoring_enabled: data.exam.proctoring_enabled,
-        allow_answer_change: data.exam.allow_answer_change,
-        show_question_counter: data.exam.show_question_counter,
-        allow_answer_review: data.exam.allow_answer_review,
-      })
       setExamDetails(data.exam)
       setExamInstructions(data.exam.instructions || "")
       
@@ -334,7 +321,6 @@ export default function ExamSetterPage() {
         show_question_counter: data.exam.show_question_counter !== 0 && data.exam.show_question_counter !== false ? true : false,
         allow_answer_review: data.exam.allow_answer_review !== 0 && data.exam.allow_answer_review !== false ? true : false,
       }
-      console.log('[Exam Setter] Setting exam controls:', examCtrl)
       setExamControls(examCtrl)
       
       // Fetch and store program controls
@@ -352,18 +338,15 @@ export default function ExamSetterPage() {
               show_question_counter: program.show_question_counter ?? true,
               allow_answer_review: program.allow_answer_review ?? true,
             }
-            console.log('[Exam Setter] Program controls:', programCtrl)
             setProgramControls(programCtrl)
           }
         } catch (err) {
-          console.error('Failed to fetch program controls:', err)
         }
       }
       
       setIsEditingInstructions(false)
       setIsEditingControls(false)
     } catch (error) {
-      console.error('Failed to fetch exam details:', error)
       toast.error('Failed to load exam details')
     }
   }
@@ -496,7 +479,6 @@ export default function ExamSetterPage() {
       setSelectedExam(newExamId)
       setCurrentStep('edit')
     } catch (error) {
-      console.error('Failed to save exam:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to save exam')
     } finally {
       setCreatingExam(false)
@@ -528,7 +510,6 @@ export default function ExamSetterPage() {
         setSelectedExam("")
       }
     } catch (error) {
-      console.error('Failed to delete exam:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to delete exam')
     } finally {
       setDeletingExamId(null)
@@ -537,7 +518,6 @@ export default function ExamSetterPage() {
 
   // ============ TOGGLE EXAM STATUS ============
   const handleToggleExamStatus = async (examId: string, currentStatus: 'draft' | 'published', newStatus: 'draft' | 'published') => {
-    console.log('[handleToggleExamStatus] Called with:', { examId, currentStatus, newStatus })
     try {
       const response = await fetch(`/api/admin/exams/${examId}/status`, {
         method: 'PATCH',
@@ -548,21 +528,17 @@ export default function ExamSetterPage() {
         })
       })
 
-      console.log('[handleToggleExamStatus] Response status:', response.status)
 
       if (!response.ok) {
         const error = await response.json()
-        console.error('[handleToggleExamStatus] API error:', error)
         throw new Error(error.error || 'Failed to update exam status')
       }
 
       const responseData = await response.json()
-      console.log('[handleToggleExamStatus] Success response:', responseData)
       
       toast.success(`Exam ${newStatus === 'published' ? 'published' : 'drafted'} successfully`)
       await fetchExams()
     } catch (error) {
-      console.error('[handleToggleExamStatus] Error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to update exam status')
     }
   }
@@ -574,10 +550,6 @@ export default function ExamSetterPage() {
     
     setIsSavingControls(true)
     try {
-      console.log('[Exam Setter] Saving controls:', {
-        exam_id: selectedExam,
-        controls: examControls
-      })
       const response = await fetch(`/api/exams/${selectedExam}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -592,17 +564,14 @@ export default function ExamSetterPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('[Exam Setter] API Error:', errorData)
         throw new Error(errorData.error || 'Failed to save exam controls')
       }
       const saveData = await response.json()
-      console.log('[Exam Setter] Save response:', saveData)
       
       toast.success('Exam controls saved successfully')
       setIsEditingControls(false)
       await fetchExamDetails()
     } catch (error) {
-      console.error('Failed to save exam controls:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to save exam controls')
     } finally {
       setIsSavingControls(false)
@@ -618,7 +587,6 @@ export default function ExamSetterPage() {
       const data = await response.json()
       setAssignedQuestions(data.questions || [])
     } catch (error) {
-      console.error('Failed to fetch assigned questions:', error)
     }
   }
 
@@ -642,7 +610,6 @@ export default function ExamSetterPage() {
       setAvailableQuestions(data.questions || [])
       setTotalPages(data.pagination?.totalPages || 1)
     } catch (error) {
-      console.error('Failed to fetch questions:', error)
       toast.error('Failed to load questions')
     } finally {
       setQuestionsLoading(false)
@@ -691,7 +658,6 @@ export default function ExamSetterPage() {
       toast.success('Programs updated successfully')
       await fetchExamDetails()
     } catch (error) {
-      console.error('Failed to save programs:', error)
       toast.error('Failed to save programs')
     } finally {
       setSavingPrograms(false)
@@ -716,7 +682,6 @@ export default function ExamSetterPage() {
       setIsEditingInstructions(false)
       await fetchExamDetails()
     } catch (error) {
-      console.error('Failed to save instructions:', error)
       toast.error('Failed to save instructions')
     } finally {
       setIsSavingInstructions(false)
@@ -761,7 +726,6 @@ export default function ExamSetterPage() {
       await fetchAssignedQuestions()
       await fetchExamDetails()
     } catch (error) {
-      console.error('Failed to add questions:', error)
       toast.error('Failed to add questions')
     } finally {
       setSaving(false)
@@ -781,7 +745,6 @@ export default function ExamSetterPage() {
       await fetchAssignedQuestions()
       await fetchExamDetails()
     } catch (error) {
-      console.error('Failed to remove question:', error)
       toast.error('Failed to remove question')
     }
   }
@@ -838,7 +801,6 @@ export default function ExamSetterPage() {
     const now = new Date()
     
     // Debug log
-    console.log(`[getExamStatus] ${exam.title}:`, { dateStr, now: now.toLocaleString(), examDateTime: examDateTime.toLocaleString(), endDateTime: endDateTime.toLocaleString() })
     
     if (now < examDateTime) {
       return { status: 'scheduled', label: 'Scheduled', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' }
@@ -981,7 +943,6 @@ export default function ExamSetterPage() {
                             Manage
                           </Button>
                           <Select value={exam.status || 'draft'} onValueChange={(newStatus) => {
-                            console.log('[Dropdown] Status change:', { examId: exam.id, oldStatus: exam.status, newStatus })
                             handleToggleExamStatus(exam.id, (exam.status as 'draft' | 'published') || 'draft', newStatus as 'draft' | 'published')
                           }}>
                             <SelectTrigger className="w-[110px] h-9">

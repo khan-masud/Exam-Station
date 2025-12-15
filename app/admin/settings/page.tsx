@@ -54,7 +54,6 @@ function BackupRestoreSection() {
         setBackups(data.backups || [])
       }
     } catch (error) {
-      console.error('Failed to load backups:', error)
       toast.error('Failed to load backups')
     } finally {
       setLoading(false)
@@ -79,7 +78,6 @@ function BackupRestoreSection() {
       toast.success(`Backup created successfully: ${data.filename}`)
       loadBackups()
     } catch (error) {
-      console.error('Failed to create backup:', error)
       toast.error('Failed to create backup')
     } finally {
       setCreating(false)
@@ -105,7 +103,6 @@ function BackupRestoreSection() {
       toast.success('Backup deleted successfully')
       loadBackups()
     } catch (error) {
-      console.error('Failed to delete backup:', error)
       toast.error('Failed to delete backup')
     } finally {
       setDeleteConfirm(null)
@@ -152,7 +149,6 @@ function BackupRestoreSection() {
         window.location.reload()
       }, 2000)
     } catch (error: any) {
-      console.error('Failed to restore backup:', error)
       toast.error(error.message || 'Failed to restore backup')
     } finally {
       setRestoring(false)
@@ -603,7 +599,6 @@ export default function SettingsPage() {
         }))
       }
     } catch (error) {
-      console.error('Failed to load settings:', error)
       toast.error('Failed to load settings')
     } finally {
       setLoading(false)
@@ -631,13 +626,6 @@ export default function SettingsPage() {
         })
       })
       
-      console.log('[Admin Settings] Saving settings:', flatSettings)
-      console.log('[Admin Settings] OAuth settings:', {
-        googleEnabled: flatSettings['oauth.googleEnabled'],
-        googleClientId: flatSettings['oauth.googleClientId'],
-        facebookEnabled: flatSettings['oauth.facebookEnabled'],
-        facebookAppId: flatSettings['oauth.facebookAppId']
-      })
 
       const response = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -668,7 +656,6 @@ export default function SettingsPage() {
 
       toast.success('Settings saved successfully')
     } catch (error) {
-      console.error('Failed to save settings:', error)
       toast.error('Failed to save settings')
     } finally {
       setSaveLoading(false)

@@ -188,7 +188,6 @@ export default function ReportsPage() {
         toast.error('Failed to fetch reports')
       }
     } catch (error) {
-      console.error("Failed to fetch reports:", error)
       toast.error('An error occurred while fetching reports')
     } finally {
       setLoading(false)

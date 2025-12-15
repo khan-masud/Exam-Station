@@ -80,7 +80,6 @@ export default function BrowseExamsPage() {
         toast.success('Exams refreshed successfully')
       }
     } catch (error) {
-      console.error('Failed to fetch exams:', error)
       toast.error('Failed to load exams')
     } finally {
       setLoading(false)

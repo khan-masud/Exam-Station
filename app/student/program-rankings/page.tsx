@@ -115,7 +115,7 @@ export default function ProgramRankingsPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch performance:', error)
+
       toast.error('Failed to load performance data')
     } finally {
       setLoading(false)

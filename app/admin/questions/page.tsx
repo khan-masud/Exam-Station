@@ -114,10 +114,6 @@ export default function QuestionsPage() {
   useEffect(() => {
     // Debugging: Log questions state whenever it changes
     if (questions.length > 0) {
-      console.log('[React State] Questions state has', questions.length, 'items');
-      console.log('[React State] First question topics:', questions[0].topics);
-      console.log('[React State] Topics field exists?:', 'topics' in questions[0]);
-      console.log('[React State] Full first question:', JSON.stringify(questions[0]));
     }
   }, [questions])
 
@@ -141,41 +137,26 @@ export default function QuestionsPage() {
       if (subjectsResponse.ok) {
         const data = await subjectsResponse.json()
         setSubjects(data.subjects || [])
-      } else {
-        console.error('Subjects fetch error:', subjectsResponse.status, await subjectsResponse.text())
       }
 
       if (questionsResponse.ok) {
         const data = await questionsResponse.json()
-        console.log('[Debug] Full API response data:', data)
-        console.log('[Debug] Questions array length:', data.questions?.length)
-        if (data.questions && data.questions.length > 0) {
-          console.log('[Debug] First question object:', JSON.stringify(data.questions[0]))
-          console.log('[Debug] First question topics:', data.questions[0].topics)
-        }
         setQuestions(data.questions || [])
-      } else {
-        console.error('Questions fetch error:', questionsResponse.status, await questionsResponse.text())
       }
 
       if (topicsResponse.ok) {
         const data = await topicsResponse.json()
-        console.log('[Debug] Topics API response:', data)
         setTopics(data.topics || [])
       } else {
-        console.error('Topics fetch error:', topicsResponse.status, await topicsResponse.text())
         toast.error('Failed to load topics')
       }
 
       if (recentlyUsedResponse.ok) {
         const data = await recentlyUsedResponse.json()
-        console.log('[Debug] Recently used topics:', data)
         setRecentlyUsedTopics(data.topics || [])
       } else {
-        console.error('Recently used topics fetch error:', recentlyUsedResponse.status, await recentlyUsedResponse.text())
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
       toast.error('Failed to load questions')
     }
     setLoading(false)
@@ -256,7 +237,6 @@ export default function QuestionsPage() {
         { option_text: "", is_correct: false, option_label: "C" },
         { option_text: "", is_correct: false, option_label: "D" },
       ])
-      console.log('[Admin Questions] New question form initialized - topicsInputValue cleared')
     }
     setShowModal(true)
   }
@@ -325,9 +305,6 @@ export default function QuestionsPage() {
 
     try {
       // Convert topicsInputValue to array of topic names
-      console.log('[Admin Questions] DEBUG: topicsInputValue =', JSON.stringify(topicsInputValue))
-      console.log('[Admin Questions] DEBUG: typeof topicsInputValue =', typeof topicsInputValue)
-      console.log('[Admin Questions] DEBUG: topicsInputValue.length =', topicsInputValue ? topicsInputValue.length : 'null')
       
       let topicNames: string[] = []
       if (topicsInputValue && typeof topicsInputValue === 'string' && topicsInputValue.trim().length > 0) {
@@ -337,7 +314,6 @@ export default function QuestionsPage() {
           .filter(t => t.length > 0)
       }
       
-      console.log('[Admin Questions] DEBUG: topicNames after parsing =', topicNames)
 
       const payload = {
         ...formData,
@@ -347,7 +323,6 @@ export default function QuestionsPage() {
         id: editingQuestion?.id
       }
 
-      console.log('[Admin Questions] FINAL PAYLOAD topics:', payload.topics)
 
       const response = await fetch('/api/questions', {
         method: editingQuestion ? 'PUT' : 'POST',
@@ -357,17 +332,14 @@ export default function QuestionsPage() {
       })
 
       if (response.ok) {
-        console.log('[Admin Questions] Success - topics should be saved')
         toast.success(editingQuestion ? "Question updated successfully" : "Question created successfully")
         handleCloseModal()
         fetchData()
       } else {
         const error = await response.json()
-        console.error('[Admin Questions] Error response:', error)
         toast.error(error.error || 'Failed to save question')
       }
     } catch (error) {
-      console.error('Error saving question:', error)
       toast.error('Failed to save question')
     }
   }
@@ -388,7 +360,6 @@ export default function QuestionsPage() {
         toast.error('Failed to delete question')
       }
     } catch (error) {
-      console.error('Error deleting question:', error)
       toast.error('Failed to delete question')
     }
   }
@@ -888,9 +859,6 @@ export default function QuestionsPage() {
 
         <div className="grid gap-4">
           {filteredQuestions.map((question, qIdx) => {
-            if (qIdx === 0) {
-              console.log('[Card Render] First question topics:', question.topics)
-            }
             const Icon = getQuestionTypeIcon(question.question_type_id)
             return (
               <Card key={question.id}>

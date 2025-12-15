@@ -43,11 +43,9 @@ export default function SubjectsPage() {
         const data = await response.json()
         setSubjects(data.subjects || [])
       } else {
-        console.error('Failed to fetch subjects:', response.statusText)
         setSubjects([])
       }
     } catch (error) {
-      console.error('Error fetching subjects:', error)
       setSubjects([])
     }
     setLoading(false)
@@ -126,7 +124,6 @@ export default function SubjectsPage() {
         }
       }
     } catch (error) {
-      console.error('Error saving subject:', error)
       toast.error('Failed to save subject')
     }
   }
@@ -147,7 +144,6 @@ export default function SubjectsPage() {
           toast.error(error.error || 'Failed to delete subject')
         }
       } catch (error) {
-        console.error('Error deleting subject:', error)
         toast.error('Failed to delete subject')
       }
     }

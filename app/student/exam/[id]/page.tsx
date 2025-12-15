@@ -97,10 +97,6 @@ export default function ExamPage() {
 
         const data = await response.json()
         
-        console.log('[Exam Details] Fetched data:', data)
-        console.log('[Exam Details] Program instructions:', data.programInstructions)
-        console.log('[Exam Details] Exam instructions:', data.exam.instructions)
-        
         // Set instructions from exam and program
         if (data.exam.instructions) {
           setExamInstructions(data.exam.instructions)
@@ -108,9 +104,6 @@ export default function ExamPage() {
         if (data.programInstructions) {
           setProgramInstructions(data.programInstructions)
         }
-        
-        console.log('[Exam Details] State set - programInstructions:', data.programInstructions)
-        console.log('[Exam Details] State set - examInstructions:', data.exam.instructions)
         
         // Store exam controls for later use
         setExamControls(data.examControls)
@@ -143,17 +136,6 @@ export default function ExamPage() {
       }
 
       const data = await response.json()
-      console.log('[Frontend] ============ START EXAM RESPONSE ============')
-      console.log('[Frontend] Full response:', data)
-      console.log('[Frontend] isResume:', data.isResume)
-      console.log('[Frontend] startTime from API:', data.startTime)
-      console.log('[Frontend] totalTimeSpent from API:', data.totalTimeSpent)
-      console.log('[Frontend] exam.duration_minutes:', data.exam.duration_minutes)
-      console.log('[Frontend] exam.proctoring_enabled:', data.exam.proctoring_enabled)
-      console.log('[Frontend] examControls:', data.examControls)
-      
-      console.log('[Frontend] Questions received:', data.questions)
-      console.log('[Frontend] First question options:', data.questions?.[0]?.options)
       
       setAttemptData(data)
       
@@ -165,13 +147,6 @@ export default function ExamPage() {
       const totalDurationSeconds = data.exam.duration_minutes * 60
       const timeSpentSeconds = data.totalTimeSpent || 0
       const remainingSeconds = Math.max(0, totalDurationSeconds - timeSpentSeconds)
-      
-      console.log('[Frontend] TIME CALCULATION:')
-      console.log('[Frontend]   Server start time:', new Date(serverStartTime).toISOString())
-      console.log('[Frontend]   totalDuration:', totalDurationSeconds, 'seconds')
-      console.log('[Frontend]   timeSpent (from server):', timeSpentSeconds, 'seconds')
-      console.log('[Frontend]   remaining:', remainingSeconds, 'seconds')
-      console.log('[Frontend] ============================================')
       
       setTimeRemaining(remainingSeconds)
 
@@ -192,7 +167,6 @@ export default function ExamPage() {
           await (elem as any).webkitRequestFullscreen()
         }
       } catch (fsError) {
-        console.warn('Fullscreen request failed:', fsError)
         toast.warning('Could not enter fullscreen mode')
       }
     } catch (error) {
@@ -307,9 +281,7 @@ export default function ExamPage() {
       if (attemptData && instructionsAccepted) {
         const elem = document.documentElement
         if (!document.fullscreenElement && elem.requestFullscreen) {
-          elem.requestFullscreen().catch(err => {
-            console.log('Could not re-enter fullscreen:', err)
-          })
+          elem.requestFullscreen().catch(() => {})
         }
       }
     }
@@ -466,10 +438,7 @@ export default function ExamPage() {
   }
 
   const handleAnswerChange = async (value: string | number, questionId: string, isOption: boolean = false) => {
-    console.log('[Frontend] handleAnswerChange called:', { value, isOption, questionId })
-    
     if (!attemptData) {
-      console.error('[Frontend] Missing attemptData')
       return
     }
 
@@ -481,15 +450,11 @@ export default function ExamPage() {
       ? { selectedOption: Number(value) }
       : { answerText: String(value) }
     
-    console.log('[Frontend] Updating answer state:', { questionId, newAnswer, totalTimeElapsed })
-    
     setAnswers((prev: Record<string, { answerText?: string, selectedOption?: number }>) => {
-      const updated = {
+      return {
         ...prev,
         [questionId]: newAnswer
       }
-      console.log('[Frontend] New answers state:', updated)
-      return updated
     })
 
     try {
@@ -501,8 +466,6 @@ export default function ExamPage() {
         timeSpent: totalTimeElapsed
       }
       
-      console.log('[Frontend] Sending to API:', payload)
-      
       const response = await fetch('/api/exam-attempts/answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -512,14 +475,9 @@ export default function ExamPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        console.error('[Frontend] Save answer error:', error)
         toast.error(`Failed to save answer: ${error.error}`)
-      } else {
-        const data = await response.json()
-        console.log('[Frontend] Answer saved successfully:', data)
       }
     } catch (error) {
-      console.error('[Frontend] Save answer exception:', error)
       toast.error('Failed to save answer')
     }
   }
@@ -640,7 +598,6 @@ export default function ExamPage() {
       setIsFullscreenExited(false)
       toast.success('Fullscreen mode restored')
     } catch (error) {
-      console.error('Failed to enter fullscreen:', error)
       toast.error('Could not enter fullscreen. Please try again.')
     }
   }

@@ -17,7 +17,6 @@ export const dynamic = 'force-dynamic'
  * Ensures all errors return JSON responses
  */
 function handleRouteError(error: any, context: string) {
-  console.error(`[Install] ${context} error:`, error)
   return NextResponse.json(
     {
       message: `${context} failed`,
@@ -74,7 +73,6 @@ async function downloadFile(url: string, dest: string): Promise<void> {
  * Downloads all face detection models needed for anti-cheat webcam monitoring
  */
 async function downloadFaceModels(): Promise<void> {
-  console.log('[Install] Downloading face detection models for anti-cheat...')
   
   // Create models directory if it doesn't exist
   await fs.mkdir(MODELS_DIR, { recursive: true })
@@ -87,22 +85,17 @@ async function downloadFaceModels(): Promise<void> {
       // Check if file already exists
       try {
         await fs.access(dest)
-        console.log(`[Install] Model ${modelFile} already exists, skipping...`)
         continue
       } catch {
         // File doesn't exist, download it
       }
 
-      console.log(`[Install] Downloading ${modelFile}...`)
       await downloadFile(url, dest)
-      console.log(`[Install] ✓ ${modelFile} downloaded`)
     } catch (err) {
-      console.error(`[Install] Failed to download ${modelFile}:`, err)
       // Don't fail installation if model download fails
     }
   }
   
-  console.log('[Install] Face detection models setup complete')
 }
 
 /**
@@ -146,7 +139,6 @@ async function runDatabaseSchema(connectionOptions: any, importDemoData: boolean
   // If demo data is not needed, remove INSERT statements for demo data
   // BUT always keep landing config, sections, and menu items (required for landing page)
   if (!importDemoData) {
-    console.log('[Install] Skipping demo data import...')
     // Use a more robust regex to remove multi-line INSERT statements
     // Match INSERT INTO statements (including multi-line) but preserve admin_settings, landing_config, landing_sections, landing_menu_items
     sql = sql.replace(/INSERT INTO `(?!admin_settings|landing_config|landing_sections|landing_menu_items)([^`]+)`[^;]*;/gs, '')
@@ -156,9 +148,6 @@ async function runDatabaseSchema(connectionOptions: any, importDemoData: boolean
     
     // Debug: Check if page_visits CREATE TABLE is still present
     if (!sql.includes('CREATE TABLE') || !sql.includes('page_visits')) {
-      console.warn('[Install] WARNING: page_visits table definition may be missing!')
-    } else {
-      console.log('[Install] ✓ page_visits table definition found in filtered SQL')
     }
   }
 
@@ -174,11 +163,8 @@ async function runDatabaseSchema(connectionOptions: any, importDemoData: boolean
     await conn.end()
     
     bulkSuccess = true
-    console.log('[Install] ✓ Schema executed successfully (bulk mode)')
     return // SUCCESS! Exit here
   } catch (err: any) {
-    console.warn("[Install] Bulk schema execution failed:", err.message)
-    console.log("[Install] Falling back to statement-by-statement execution...")
   }
 
   // Only reach here if bulk execution failed
@@ -195,7 +181,6 @@ async function runDatabaseSchema(connectionOptions: any, importDemoData: boolean
       .map((s) => s.trim())
       .filter((s) => s.length > 0 && !s.startsWith("--"))
 
-    console.log(`[Install] Executing ${statements.length} SQL statements...`)
     let successCount = 0
     let errorCount = 0
 
@@ -206,22 +191,14 @@ async function runDatabaseSchema(connectionOptions: any, importDemoData: boolean
         successCount++
         
         // Log progress every 50 statements
-        if ((i + 1) % 50 === 0) {
-          console.log(`[Install] Progress: ${i + 1}/${statements.length} statements executed`)
-        }
       } catch (err: any) {
         // Only log non-critical errors (like table already exists)
         if (!err.message.includes("already exists")) {
           errorCount++
-          console.warn("[Install] Schema statement error:", {
-            statement: statement.substring(0, 100) + '...',
-            error: err.message
-          })
         }
       }
     }
     
-    console.log(`[Install] ✓ Schema execution complete: ${successCount} successful, ${errorCount} errors`)
   } finally {
     await connection.end()
   }
@@ -730,7 +707,6 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (error: any) {
-      console.error("[Install] User/Organization creation error:", error)
       return NextResponse.json(
         {
           message: "Failed to create admin user or organization",
@@ -754,9 +730,7 @@ export async function POST(req: NextRequest) {
 
       await writeEnvFile(envVars)
     } catch (error: any) {
-      console.error("[Install] .env file write error:", error)
       // Don't fail installation if .env write fails, just warn
-      console.warn("[Install] Warning: Could not write .env file. Please configure manually.")
     }
 
     // Step 8: Ensure landing_config and sections exist
@@ -767,7 +741,6 @@ export async function POST(req: NextRequest) {
       const finalSiteTagline = siteTagline || "Your assessment platform"
       const DEFAULT_CONFIG_ID = '550e8400-e29b-41d4-a716-446655440000'
       
-      console.log('[Install] Step 8: Setting up landing page...')
       
       try {
         // Create landing config with all required fields
@@ -784,9 +757,7 @@ export async function POST(req: NextRequest) {
             finalSiteTagline
           ]
         )
-        console.log('[Install] ✓ Landing config created/updated')
       } catch (e: any) {
-        console.warn('[Install] Landing config setup warning:', e.message)
       }
       
       try {
@@ -810,9 +781,7 @@ export async function POST(req: NextRequest) {
             section
           )
         }
-        console.log('[Install] ✓ Landing sections created (Hero, Statistics, Features, Programs, Testimonials, CTA, Newsletter, Custom HTML, Footer)')
       } catch (e: any) {
-        console.warn('[Install] Landing sections setup warning:', e.message)
       }
       
       try {
@@ -832,9 +801,7 @@ export async function POST(req: NextRequest) {
             item
           )
         }
-        console.log('[Install] ✓ Landing menu items created')
       } catch (e: any) {
-        console.warn('[Install] Landing menu items setup warning:', e.message)
       }
       
       // Also update admin_settings for consistency
@@ -852,13 +819,10 @@ export async function POST(req: NextRequest) {
            ON DUPLICATE KEY UPDATE setting_value = ?`,
           [uuidv4(), 'general.siteTagline', JSON.stringify(finalSiteTagline), JSON.stringify(finalSiteTagline)]
         )
-        console.log('[Install] ✓ Admin settings updated')
       } catch (e: any) {
-        console.warn('[Install] Admin settings update warning:', e.message)
       }
       
     } catch (error: any) {
-      console.error('[Install] Error in Step 8:', error.message)
       // Don't fail installation if landing setup fails
     }
 

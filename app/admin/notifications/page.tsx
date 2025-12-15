@@ -29,18 +29,12 @@ export default function AdminNotificationsPage() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      console.log('[Admin Notifications] Fetching notifications...');
       const response = await fetch('/api/notifications?limit=100');
-      console.log('[Admin Notifications] Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log('[Admin Notifications] Received data:', data);
         setNotifications(data.notifications || []);
-      } else {
-        console.error('[Admin Notifications] Failed to fetch, status:', response.status);
       }
     } catch (error) {
-      console.error('[Admin Notifications] Fetch error:', error);
     } finally {
       setLoading(false);
     }
@@ -55,7 +49,6 @@ export default function AdminNotificationsPage() {
       });
       setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (error) {
-      console.error('Failed to mark as read:', error);
     }
   };
 
@@ -64,7 +57,6 @@ export default function AdminNotificationsPage() {
       await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
       setNotifications(notifications.filter(n => n.id !== id));
     } catch (error) {
-      console.error('Failed to delete:', error);
     }
   };
 

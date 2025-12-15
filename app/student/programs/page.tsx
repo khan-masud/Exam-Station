@@ -73,7 +73,6 @@ export default function StudentProgramsPage() {
       
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('Fetch programs failed:', errorData)
         throw new Error(errorData.error || 'Failed to fetch programs')
       }
 
@@ -84,7 +83,6 @@ export default function StudentProgramsPage() {
         toast.success('Programs refreshed successfully')
       }
     } catch (error) {
-      console.error('Failed to fetch programs:', error)
       toast.error('Failed to load programs')
     } finally {
       setLoading(false)
@@ -163,7 +161,6 @@ export default function StudentProgramsPage() {
         toast.error(data.error || 'Failed to cancel enrollment')
       }
     } catch (error) {
-      console.error('Cancel error:', error)
       toast.error('Failed to cancel enrollment')
     } finally {
       setCancelling(false)

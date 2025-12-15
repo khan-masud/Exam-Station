@@ -79,7 +79,7 @@ export default function RankingsPage() {
         toast.success('Rankings refreshed successfully')
       }
     } catch (error) {
-      console.error('Failed to fetch rankings:', error)
+
       toast.error('Failed to load rankings')
     } finally {
       setLoading(false)

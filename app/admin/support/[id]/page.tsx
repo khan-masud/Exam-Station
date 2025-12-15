@@ -77,7 +77,6 @@ export default function AdminTicketDetailPage() {
       setMessages(data.messages || [])
       setNewStatus(data.ticket.status)
     } catch (error) {
-      console.error('Error fetching ticket:', error)
       toast.error('Failed to load ticket details')
     } finally {
       setLoading(false)
@@ -109,7 +108,6 @@ export default function AdminTicketDetailPage() {
 
       toast.success('Ticket status updated')
     } catch (error: any) {
-      console.error('Error updating status:', error)
       toast.error('Failed to update ticket status')
       setNewStatus(ticket.status)
     } finally {
@@ -171,7 +169,6 @@ export default function AdminTicketDetailPage() {
         toast.success('Ticket marked as in progress')
       }
     } catch (error: any) {
-      console.error('Error sending message:', error)
       toast.error(error.message || 'Failed to send message')
     } finally {
       setSending(false)

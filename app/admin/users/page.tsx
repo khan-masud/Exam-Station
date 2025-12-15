@@ -208,7 +208,6 @@ export default function UsersPage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching users:', error)
       setUsers([])
     }
     setLoading(false)
@@ -229,7 +228,7 @@ export default function UsersPage() {
         setBlocks(convertedBlocks)
       }
     } catch (error) {
-      console.error('Error fetching blocks:', error)
+      // Silently handle - blocks is optional data
     }
   }
 
@@ -245,7 +244,6 @@ export default function UsersPage() {
         toast.error('Failed to load user statistics')
       }
     } catch (error) {
-      console.error('Error fetching user stats:', error)
       toast.error('Failed to load user statistics')
     }
   }
@@ -260,15 +258,12 @@ export default function UsersPage() {
       })
       if (response.ok) {
         const data = await response.json()
-        console.log('Program stats fetched:', data)
         setProgramStats(data.programs || [])
       } else {
-        const error = await response.text()
-        console.error('Program stats error response:', response.status, error)
+        await response.text()
         setProgramStats([])
       }
     } catch (error) {
-      console.error('Error fetching program stats:', error)
       setProgramStats([])
     }
   }
@@ -283,15 +278,12 @@ export default function UsersPage() {
       })
       if (response.ok) {
         const data = await response.json()
-        console.log('Transaction history fetched:', data)
         setTransactionHistory(data.transactions || [])
       } else {
-        const error = await response.text()
-        console.error('Transaction history error response:', response.status, error)
+        await response.text()
         setTransactionHistory([])
       }
     } catch (error) {
-      console.error('Error fetching transaction history:', error)
       setTransactionHistory([])
     }
   }
@@ -311,7 +303,6 @@ export default function UsersPage() {
         setUserBlockingHistory([])
       }
     } catch (error) {
-      console.error('Error fetching user blocking history:', error)
       setUserBlockingHistory([])
     }
   }
@@ -444,7 +435,6 @@ export default function UsersPage() {
         toast.error(error.error || 'Failed to block user')
       }
     } catch (error) {
-      console.error('Error blocking user:', error)
       toast.error('Failed to block user')
     } finally {
       setSaving(false)
@@ -463,9 +453,7 @@ export default function UsersPage() {
       })
 
       if (response.ok) {
-        console.log('Unblock response:', response)
         const data = await response.json()
-        console.log('Unblock data:', data)
         
         // Wait a moment then refresh
         await new Promise(resolve => setTimeout(resolve, 300))
@@ -486,11 +474,9 @@ export default function UsersPage() {
         }
       } else {
         const error = await response.json()
-        console.error('Unblock error response:', error)
         toast.error(error.error || 'Failed to unblock user')
       }
     } catch (error) {
-      console.error('Error unblocking user:', error)
       toast.error('Failed to unblock user')
     }
   }
@@ -586,7 +572,6 @@ export default function UsersPage() {
         }
       }
     } catch (error) {
-      console.error('Error saving user:', error)
       toast.error('Failed to save user')
     } finally {
       setSaving(false)
@@ -609,7 +594,6 @@ export default function UsersPage() {
           toast.error(error.error || 'Failed to delete user')
         }
       } catch (error) {
-        console.error('Error deleting user:', error)
         toast.error('Failed to delete user')
       }
     }

@@ -116,7 +116,6 @@ export default function PaymentsPage() {
           const text = await response.text()
           data = JSON.parse(text)
         } catch (parseError) {
-          console.error('Failed to parse response JSON:', parseError)
           throw new Error('Invalid JSON response')
         }
         
@@ -134,22 +133,17 @@ export default function PaymentsPage() {
         }
         setDataLoaded(true)
       } else {
-        console.error('Payment fetch failed with status:', response.status)
-        console.error('Response headers:', Object.fromEntries(response.headers.entries()))
         
         let errorData = {}
         try {
           const text = await response.text()
-          console.error('Response text:', text)
           if (text) {
             errorData = JSON.parse(text)
           }
         } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
           errorData = { error: 'Failed to parse error response', status: response.status }
         }
         
-        console.error('Payment fetch error:', errorData)
         
         // Don't show error toast for auth errors as it will redirect anyway
         if (response.status !== 401 && response.status !== 403) {
@@ -167,7 +161,6 @@ export default function PaymentsPage() {
         })
       }
     } catch (error: any) {
-      console.error("Failed to fetch payments:", error)
       
       // Don't show error toast for network errors as they might be auth-related
       // Set empty data to prevent crashes
@@ -224,7 +217,6 @@ export default function PaymentsPage() {
         toast.error(data.error || 'Failed to process payment')
       }
     } catch (error) {
-      console.error('Error processing payment:', error)
       toast.error('Failed to process payment')
     } finally {
       setProcessingAction(false)
@@ -270,7 +262,6 @@ export default function PaymentsPage() {
         toast.error(data.error || 'Failed to update status')
       }
     } catch (error) {
-      console.error('Error updating status:', error)
       toast.error('Failed to update status')
     } finally {
       setProcessingAction(false)
@@ -308,19 +299,14 @@ export default function PaymentsPage() {
       params.append('endDate', exportEndDate)
       params.append('format', exportFormat)
 
-      console.log('Exporting with params:', Object.fromEntries(params))
 
       const response = await fetch(`/api/payments/export?${params.toString()}`, {
         credentials: 'include'
       })
 
-      console.log('Export response status:', response.status)
-      console.log('Export response headers:', Object.fromEntries(response.headers.entries()))
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('Export error response:', errorText)
-        console.error('Export failed - Status:', response.status, 'Text:', errorText)
         try {
           const jsonError = JSON.parse(errorText)
           throw new Error(`API Error: ${jsonError.error || 'Unknown error'} - ${jsonError.details || ''}`)
@@ -330,7 +316,6 @@ export default function PaymentsPage() {
       }
 
       const blob = await response.blob()
-      console.log('Blob size:', blob.size)
       
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -347,7 +332,6 @@ export default function PaymentsPage() {
       setExportStartDate("")
       setExportEndDate("")
     } catch (error: any) {
-      console.error('Export error:', error)
       toast.error(error.message || 'Failed to export transactions')
     } finally {
       setExportLoading(false)
@@ -911,7 +895,6 @@ export default function PaymentsPage() {
                   ? JSON.parse(tx.payment_details) 
                   : tx.payment_details || {}
               } catch (e) {
-                console.error('Error parsing payment_details:', e)
                 paymentDetails = {}
               }
 

@@ -65,7 +65,6 @@ async function checkRateLimit(request: NextRequest, maxRequests: number = 60, id
 
   if (userLimit.count >= maxRequests) {
     // Limit exceeded - log only when blocked
-    console.warn(`[RateLimit] BLOCKED ${key}: ${userLimit.count}/${maxRequests} (${request.nextUrl.pathname})`)
     return false
   }
 
@@ -82,9 +81,7 @@ export async function middleware(request: NextRequest) {
   let installed = false
   try {
     installed = await isInstalledServer()
-    console.log('[Middleware] Installation status check:', { installed, pathname })
   } catch (error) {
-    console.error('[Middleware] Error checking installation status:', error)
     // If we can't check installation status, allow install routes
     if (pathname.startsWith('/install') || pathname.startsWith('/api/install')) {
       return NextResponse.next()
@@ -92,7 +89,6 @@ export async function middleware(request: NextRequest) {
   }
   
   if (!installed) {
-    console.log('[Middleware] System not installed, redirecting to install for path:', pathname)
     // Allow install page and API
     if (pathname.startsWith('/install') || pathname.startsWith('/api/install')) {
       return NextResponse.next()
@@ -150,7 +146,6 @@ export async function middleware(request: NextRequest) {
             }
           }
         } catch (error) {
-          console.error('Rate limiting check failed:', error)
         }
       }
     }

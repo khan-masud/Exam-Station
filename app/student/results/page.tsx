@@ -68,7 +68,7 @@ export default function ResultsListPage() {
         toast.success('Results refreshed successfully')
       }
     } catch (error) {
-      console.error('Failed to fetch results:', error)
+
       toast.error('Failed to load results')
     } finally {
       setLoading(false)

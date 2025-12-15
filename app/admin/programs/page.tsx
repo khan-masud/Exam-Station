@@ -79,17 +79,14 @@ export default function ProgramsPage() {
           // Fallback if API returns array directly
           setPrograms(data)
         } else {
-          console.error('Unexpected API response format:', data)
           setPrograms([])
         }
       } else {
         const errorText = await response.text()
-        console.error('Failed to fetch programs:', response.statusText, errorText)
         toast.error("Failed to load programs")
         setPrograms([]) // Set empty array on error
       }
     } catch (error) {
-      console.error('Error fetching programs:', error)
       toast.error("An error occurred while loading programs")
       setPrograms([]) // Set empty array on error
     } finally {
@@ -190,7 +187,6 @@ export default function ProgramsPage() {
         toast.error(data.error || 'Failed to save program')
       }
     } catch (error) {
-      console.error('Error saving program:', error)
       toast.error('Failed to save program')
     }
   }
@@ -215,7 +211,6 @@ export default function ProgramsPage() {
         toast.error(data.error || 'Failed to delete program')
       }
     } catch (error) {
-      console.error('Error deleting program:', error)
       toast.error('Failed to delete program')
     } finally {
       setDeleting(null)

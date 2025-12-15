@@ -37,7 +37,6 @@ export default function ImagePicker({ value, onChange, label = "Image" }: ImageP
         setImages(data.images || [])
       }
     } catch (error) {
-      console.error('Failed to fetch images:', error)
       toast.error('Failed to load images')
     } finally {
       setLoading(false)
@@ -73,7 +72,6 @@ export default function ImagePicker({ value, onChange, label = "Image" }: ImageP
       onChange(data.image.fileUrl)
       setOpen(false)
     } catch (error: any) {
-      console.error('Upload error:', error)
       toast.error(error.message || 'Failed to upload image')
     } finally {
       setUploading(false)
@@ -104,7 +102,6 @@ export default function ImagePicker({ value, onChange, label = "Image" }: ImageP
         onChange(null)
       }
     } catch (error: any) {
-      console.error('Delete error:', error)
       toast.error(error.message || 'Failed to delete image')
     }
   }

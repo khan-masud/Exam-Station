@@ -176,7 +176,6 @@ export default function StudentPaymentsPage() {
         toast.error(data.error || 'Invalid coupon code')
       }
     } catch (error) {
-      console.error('Failed to validate coupon:', error)
       toast.error('Failed to validate coupon')
     } finally {
       setValidatingCoupon(false)
@@ -267,7 +266,6 @@ export default function StudentPaymentsPage() {
         toast.error(data.error || 'Failed to submit payment')
       }
     } catch (error) {
-      console.error('Failed to submit payment:', error)
       toast.error('Failed to submit payment')
     } finally {
       setSubmitting(false)
