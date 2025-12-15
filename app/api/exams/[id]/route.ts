@@ -22,7 +22,6 @@ export async function GET(
     }
 
     const { id: examId } = await params
-    console.log('[Get exam details] Fetching exam:', examId)
 
     // Get exam details (includes exam instructions and program instructions)
     // Note: Exams are linked to programs through exam_programs table (many-to-many)
@@ -40,14 +39,8 @@ export async function GET(
     const exam = examRows && examRows[0] ? examRows[0] : null
 
     if (!exam) {
-      console.log('[Get exam details] Exam not found:', examId)
       return NextResponse.json({ error: 'Exam not found' }, { status: 404 })
     }
-
-    console.log('[Get exam details] Exam found:', exam.title)
-    console.log('[Get exam details] Exam program_id:', exam.program_id)
-    console.log('[Get exam details] Program instructions from DB:', exam.program_instructions)
-    console.log('[Get exam details] Exam instructions from DB:', exam.instructions)
 
     // Get exam control settings
     const examControls = {
@@ -55,8 +48,6 @@ export async function GET(
       show_question_counter: exam.show_question_counter ?? true,
       allow_answer_review: exam.allow_answer_review ?? true,
     }
-
-    console.log('[Get exam details] Returning programInstructions:', exam.program_instructions || '')
     
     return NextResponse.json({
       exam,
@@ -89,9 +80,6 @@ export async function PATCH(
 
     const { id: examId } = await params
     const body = await request.json()
-    
-    console.log('[Update exam] Updating exam:', examId)
-    console.log('[Update exam] Body:', body)
 
     // Build dynamic update query based on provided fields
     const updates: string[] = []
@@ -112,8 +100,6 @@ export async function PATCH(
       `UPDATE exams SET ${updates.join(', ')} WHERE id = ?`,
       values
     )
-
-    console.log('[Update exam] Exam updated successfully')
 
     return NextResponse.json({ 
       success: true,

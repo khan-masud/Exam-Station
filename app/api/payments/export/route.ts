@@ -4,19 +4,14 @@ import { query } from '@/lib/db'
 
 export async function GET(req: NextRequest) {
   try {
-    console.log('[Export API] Request URL:', req.url)
-    
     // Simple token retrieval from cookies
     const token = req.cookies.get("auth_token")?.value
-    
-    console.log('[Export API] Token found:', !!token)
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const decoded = verifyToken(token)
-    console.log('[Export API] Token decoded:', !!decoded, 'Role:', decoded?.role)
     
     if (!decoded) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
@@ -31,8 +26,6 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const format = searchParams.get('format') || 'csv'
-
-    console.log('[Export API] Parameters:', { startDate, endDate, format })
 
     if (!startDate || !endDate) {
       return NextResponse.json({ error: 'Start and end dates required' }, { status: 400 })
@@ -67,16 +60,11 @@ export async function GET(req: NextRequest) {
       WHERE DATE(t.created_at) >= DATE(?) AND DATE(t.created_at) <= DATE(?)
       ORDER BY t.created_at DESC
     `
-
-    console.log('[Export API] Executing query with dates:', startDate, endDate)
     
     const rows = await query(queryStr, [startDate, endDate]) as any[]
-    
-    console.log('[Export API] Query returned', rows.length, 'rows')
 
     if (format === 'csv') {
       const csvContent = generateCSV(rows)
-      console.log('[Export API] Generated CSV, size:', csvContent.length)
       
       const response = new NextResponse(csvContent)
       response.headers.set('Content-Type', 'text/csv; charset=utf-8')
@@ -88,8 +76,7 @@ export async function GET(req: NextRequest) {
       
       const response = new NextResponse(xmlContent)
       response.headers.set('Content-Type', 'application/xml; charset=utf-8')
-      response.headers.set('Content-Disposition', 'attachment; filename="transactions.xml"')
-      return response
+      response.headers.set('Content-Dispos
     }
   } catch (error: any) {
     console.error('[Export API] Error:', error)

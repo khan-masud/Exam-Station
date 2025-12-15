@@ -34,7 +34,6 @@ export function initSocket(server: HTTPServer) {
           socket.join(`role:${decoded.role}`)
           
           socket.emit('authenticated', { userId: decoded.userId, role: decoded.role })
-          console.log(`User ${decoded.userId} authenticated with role ${decoded.role}`)
         }
       } catch (error) {
         socket.emit('auth_error', { message: 'Authentication failed' })

@@ -118,9 +118,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
     
-    // Log OAuth settings being saved
-    const oauthSettings = Object.keys(settingsToSave).filter(k => k.startsWith('oauth.'))
-    console.log('[Settings Save] OAuth settings received:', oauthSettings.map(k => ({ key: k, value: settingsToSave[k] })))
+    // OAuth settings will be saved securely
 
     // Save each setting
     const savedKeys: string[] = []
@@ -168,8 +166,6 @@ export async function POST(req: NextRequest) {
       
       updates.push('redirect_uri = ?')
       params.push(redirectUri)
-      
-      console.log('[Settings] Saving Google OAuth:', { updates, values: params })
       
       const googleId = uuidv4()
       
@@ -234,8 +230,6 @@ export async function POST(req: NextRequest) {
       
       updates.push('redirect_uri = ?')
       params.push(redirectUri)
-      
-      console.log('[Settings] Saving Facebook OAuth:', { updates, values: params })
       
       const facebookId = uuidv4()
       

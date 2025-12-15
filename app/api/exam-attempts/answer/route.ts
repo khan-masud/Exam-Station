@@ -14,12 +14,11 @@ export async function POST(request: NextRequest) {
 
     const decoded = await verifyToken(token)
     if (!decoded || decoded.role !== "student") {
-      console.error("[Answer API] Invalid user or not a student:", decoded)
+      console.error("[Answer API] Invalid user or not a student")
       return NextResponse.json({ error: "Only students can submit answers" }, { status: 403 })
     }
 
     const { attemptId, questionId, answerText, selectedOption, timeSpent, isFlagged } = await request.json()
-    console.log("[Answer API] Received:", { attemptId, questionId, answerText, selectedOption, timeSpent, isFlagged })
 
     // Verify attempt belongs to student
     const attemptRows = await query(
@@ -63,52 +62,33 @@ export async function POST(request: NextRequest) {
     const existingAnswer = existingAnswerRows && existingAnswerRows[0] ? existingAnswerRows[0] : null
     const answerId = existingAnswer?.id || uuidv4()
 
-    console.log("[Answer API] Existing answer:", existingAnswer ? "UPDATE" : "INSERT")
-
     if (existingAnswer) {
       // Update existing answer
-      const updateResult = await query(
+      await query(
         `UPDATE exam_answers 
          SET answer_text = ?, selected_option = ?, is_flagged = ?, time_spent_seconds = ?
          WHERE id = ?`,
         [answerText || null, selectedOption !== undefined && selectedOption !== null ? selectedOption : null, isFlagged || false, timeSpent || 0, answerId]
       )
-      console.log("[Answer API] UPDATE result:", updateResult)
     } else {
       // Insert new answer
-      const insertResult = await query(
+      await query(
         `INSERT INTO exam_answers 
          (id, attempt_id, question_id, answer_text, selected_option, is_flagged, time_spent_seconds) 
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [answerId, attemptId, questionId, answerText || null, selectedOption !== undefined && selectedOption !== null ? selectedOption : null, isFlagged || false, timeSpent || 0]
       )
-      console.log("[Answer API] INSERT result:", insertResult)
     }
 
     // Update exam progress (current question, total time spent)
     // Frontend sends total elapsed time from server start, so we can just update directly
-    const beforeQuery = await query(
-      `SELECT total_time_spent FROM exam_attempts WHERE id = ?`,
-      [attemptId]
-    ) as any[]
-    const timeBefore = beforeQuery?.[0]?.total_time_spent || 0
-    
     await query(
       `UPDATE exam_attempts 
        SET total_time_spent = ?
        WHERE id = ?`,
       [timeSpent || 0, attemptId]
     )
-    
-    const afterQuery = await query(
-      `SELECT total_time_spent FROM exam_attempts WHERE id = ?`,
-      [attemptId]
-    ) as any[]
-    const timeAfter = afterQuery?.[0]?.total_time_spent || 0
-    
-    console.log("[Answer API] Time tracking - Before:", timeBefore, "| Received:", timeSpent, "| After:", timeAfter)
 
-    console.log("[Answer API] Success - Answer saved:", answerId)
     return NextResponse.json({
       success: true,
       answerId,

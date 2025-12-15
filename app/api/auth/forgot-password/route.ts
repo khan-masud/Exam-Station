@@ -63,17 +63,8 @@ export async function POST(req: NextRequest) {
     if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
       console.error('[Forgot Password] SMTP not configured - cannot send email')
       
-      // In development, log the reset URL
-      if (process.env.NODE_ENV === 'development') {
-        console.log('\n==============================================')
-        console.log('🔐 PASSWORD RESET LINK (Development Only):')
-        console.log(resetUrl)
-        console.log('==============================================\n')
-      }
-      
       return NextResponse.json({
-        error: "Email service is not configured. Please contact the administrator to set up SMTP credentials.",
-        resetUrl: process.env.NODE_ENV === 'development' ? resetUrl : undefined
+        error: "Email service is not configured. Please contact the administrator to set up SMTP credentials."
       }, { status: 500 })
     }
 
