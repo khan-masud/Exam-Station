@@ -107,7 +107,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Payment initiation error:', error)
     return NextResponse.json(
       { error: error.message || 'Payment initiation failed' },
       { status: 500 }

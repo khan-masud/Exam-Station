@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         ? JSON.parse(transaction.payment_details) 
         : transaction.payment_details || {}
     } catch (e) {
-      console.error('Error parsing payment details:', e)
+      // Error parsing payment details
     }
 
     const programId = (paymentDetails as any).program_id
@@ -168,7 +168,6 @@ export async function POST(request: NextRequest) {
         `
       })
     } catch (emailError) {
-      console.error('Failed to send status update email:', emailError)
       // Don't fail the whole request if email fails
     }
 
@@ -179,7 +178,6 @@ export async function POST(request: NextRequest) {
       newStatus: status
     })
   } catch (error: any) {
-    console.error('Failed to update payment status:', error)
     return NextResponse.json({ 
       error: 'Failed to update payment status',
       details: error.message

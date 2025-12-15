@@ -50,7 +50,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(preferences[0]);
   } catch (error) {
-    console.error('[Notification Preferences API] Get error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch preferences' },
       { status: 500 }
@@ -135,7 +134,6 @@ export async function PUT(request: NextRequest) {
       message: 'Notification preferences updated successfully',
     });
   } catch (error) {
-    console.error('[Notification Preferences API] Put error:', error);
     return NextResponse.json(
       { error: 'Failed to update preferences' },
       { status: 500 }

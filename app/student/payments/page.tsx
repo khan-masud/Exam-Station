@@ -105,7 +105,6 @@ export default function StudentPaymentsPage() {
         toast.error('Program enrollment fee is not set')
       }
     } catch (error) {
-      console.error('Failed to fetch program:', error)
       toast.error('Failed to load program details')
       router.push('/student/programs')
     } finally {
@@ -127,7 +126,7 @@ export default function StudentPaymentsPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch payment methods:', error)
+      // Failed to fetch payment methods
     }
   }
 

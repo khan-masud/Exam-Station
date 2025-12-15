@@ -72,7 +72,6 @@ export async function GET(req: NextRequest) {
       return response
     } else {
       const xmlContent = generateXML(rows)
-      console.log('[Export API] Generated XML, size:', xmlContent.length)
       
       const response = new NextResponse(xmlContent)
       response.headers.set('Content-Type', 'application/xml; charset=utf-8')
@@ -80,13 +79,6 @@ export async function GET(req: NextRequest) {
       return response
     }
   } catch (error: any) {
-    console.error('[Export API] Error:', error)
-    console.error('[Export API] Error details:', {
-      message: error.message,
-      code: error.code,
-      sql: error.sql,
-      stack: error.stack
-    })
     return NextResponse.json(
       { error: 'Failed to export transactions', details: error.message },
       { status: 500 }

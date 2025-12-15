@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
       notificationId
     });
   } catch (error) {
-    console.error('[Demo Notification] Error:', error);
     return NextResponse.json(
       { error: 'Failed to send demo notification' },
       { status: 500 }

@@ -38,11 +38,9 @@ export default function PaymentHistoryPage() {
         const totalCount = data.summary?.totalTransactions || 0
         setTotal(totalCount)
         setTotalPages(Math.max(1, Math.ceil(totalCount / limit)))
-      } else {
-        console.error('Failed fetching payments', data)
       }
     } catch (err) {
-      console.error('Fetch error', err)
+      // Failed to fetch payments
     } finally {
       setLoading(false)
     }

@@ -79,7 +79,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       message: 'Notification updated successfully',
     });
   } catch (error) {
-    console.error('[Notifications API] Patch error:', error);
     return NextResponse.json(
       { error: 'Failed to update notification' },
       { status: 500 }
@@ -135,7 +134,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: 'Notification deleted successfully',
     });
   } catch (error) {
-    console.error('[Notifications API] Delete error:', error);
     return NextResponse.json(
       { error: 'Failed to delete notification' },
       { status: 500 }

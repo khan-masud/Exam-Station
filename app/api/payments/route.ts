@@ -126,7 +126,6 @@ export async function GET(req: NextRequest) {
     try {
       rows = await query(queryStr, params) as any[]
     } catch (dbError: any) {
-      console.error('Database query error:', dbError)
       return NextResponse.json({ 
         error: 'Database query failed',
         details: dbError.message
@@ -142,7 +141,6 @@ export async function GET(req: NextRequest) {
       const [countRow]: any = await query(countQuery, whereParams)
       totalCount = countRow?.total || 0
     } catch (countError: any) {
-      console.error('Count query failed:', countError)
       totalCount = 0
     }
 
@@ -166,7 +164,6 @@ export async function GET(req: NextRequest) {
     try {
       summaryRows = await query(summaryQuery, summaryParams) as any[]
     } catch (summaryError: any) {
-      console.error('Summary query error:', summaryError)
       return NextResponse.json({ 
         error: 'Summary query failed',
         details: summaryError.message
@@ -212,13 +209,6 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error: any) {
-    console.error('Failed to fetch payments:', error)
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      sql: error.sql,
-      stack: error.stack
-    })
     return NextResponse.json({ 
       error: 'Failed to fetch payments',
       details: error.message
