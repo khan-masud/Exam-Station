@@ -20,6 +20,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // Auto-fix redirect URIs on every settings load
+    const host = req.headers.get('host') || 'localhost:3000'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const correctRedirectUri = `${protocol}://${host}/api/auth/oauth/callback`
+    
+    try {
+      await pool.query(
+        `UPDATE oauth_providers 
+         SET redirect_uri = ? 
+         WHERE redirect_uri != ? OR redirect_uri IS NULL`,
+        [correctRedirectUri, correctRedirectUri]
+      )
+    } catch (err) {
+      // Silently fail if update doesn't work
+    }
+
     // Load all settings from database
     const [rows] = await pool.query(
       'SELECT setting_key, setting_value FROM admin_settings'
@@ -140,7 +156,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Handle OAuth provider configurations specially
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/oauth/callback`
+    // Automatically detect the domain from the request
+    const host = req.headers.get('host') || 'localhost:3000'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const redirectUri = `${protocol}://${host}/api/auth/oauth/callback`
     
     // Update or insert Google OAuth if any Google setting is present
     if (settingsToSave['oauth.googleClientId'] !== undefined || settingsToSave['oauth.googleClientSecret'] !== undefined || settingsToSave['oauth.googleEnabled'] !== undefined) {

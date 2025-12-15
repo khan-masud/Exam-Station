@@ -827,6 +827,47 @@ export async function POST(req: NextRequest) {
       // Don't fail installation if landing setup fails
     }
 
+    // Step 8.5: Initialize OAuth providers with correct redirect URIs
+    try {
+      const { query } = await import("@/lib/db")
+      
+      // Automatically detect the domain from the request
+      const host = req.headers.get('host') || 'localhost:3000'
+      const protocol = host.includes('localhost') ? 'http' : 'https'
+      const redirectUri = `${protocol}://${host}/api/auth/oauth/callback`
+      
+      // Create Google OAuth provider entry
+      await query(
+        `INSERT INTO oauth_providers 
+         (id, provider_name, provider_type, client_id, client_secret, is_enabled, redirect_uri,
+          authorization_url, token_url, userinfo_url, scopes)
+         VALUES (?, 'google', 'oauth2', '', '', 0, ?,
+                 'https://accounts.google.com/o/oauth2/v2/auth',
+                 'https://oauth2.googleapis.com/token',
+                 'https://www.googleapis.com/oauth2/v2/userinfo',
+                 'openid email profile')
+         ON DUPLICATE KEY UPDATE redirect_uri = ?`,
+        [uuidv4(), redirectUri, redirectUri]
+      )
+      
+      // Create Facebook OAuth provider entry
+      await query(
+        `INSERT INTO oauth_providers 
+         (id, provider_name, provider_type, client_id, client_secret, is_enabled, redirect_uri,
+          authorization_url, token_url, userinfo_url, scopes)
+         VALUES (?, 'facebook', 'oauth2', '', '', 0, ?,
+                 'https://www.facebook.com/v12.0/dialog/oauth',
+                 'https://graph.facebook.com/v12.0/oauth/access_token',
+                 'https://graph.facebook.com/me?fields=id,name,email',
+                 'email public_profile')
+         ON DUPLICATE KEY UPDATE redirect_uri = ?`,
+        [uuidv4(), redirectUri, redirectUri]
+      )
+      
+    } catch (error: any) {
+      // Don't fail installation if OAuth setup fails
+    }
+
     // Step 9: Download face detection models for anti-cheat (non-blocking)
     try {
       // Download models in background, don't wait for completion
