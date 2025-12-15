@@ -582,9 +582,9 @@ export default function SettingsPage() {
             ...prev.general,
             ...s.general,
           },
-          seo: {
-            ...prev.seo,
-            ...s.seo,
+          smtp: {
+            ...prev.smtp,
+            ...s.smtp,
           },
           oauth: {
             ...prev.oauth,
