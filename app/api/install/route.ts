@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { dbHost, dbUser, dbPassword, dbName, adminEmail, adminPassword, adminFullName, importDemoData, siteName, siteTagline } = body
+    const { dbHost, dbUser, dbPassword, dbName, adminEmail, adminPassword, adminFullName, importDemoData, siteName, siteTagline, appUrl } = body
 
     // Validation
     if (!dbHost || !dbUser || !dbName || !adminEmail || !adminPassword || !adminFullName) {
@@ -718,6 +718,7 @@ export async function POST(req: NextRequest) {
 
     // Step 7: Write .env file
     try {
+      const finalAppUrl = appUrl || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:3000")
       const envVars = {
         DB_HOST: dbHost,
         DB_USER: dbUser,
@@ -725,7 +726,7 @@ export async function POST(req: NextRequest) {
         DB_NAME: dbName,
         JWT_SECRET: uuidv4() + uuidv4(), // Generate a random JWT secret
         NODE_ENV: "production",
-        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        NEXT_PUBLIC_APP_URL: finalAppUrl,
       }
 
       await writeEnvFile(envVars)

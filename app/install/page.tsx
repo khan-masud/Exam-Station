@@ -49,7 +49,8 @@ export default function InstallPage() {
   
   const [siteConfig, setSiteConfig] = useState({
     siteName: "Exam System",
-    siteTagline: "Your assessment platform"
+    siteTagline: "Your assessment platform",
+    appUrl: typeof window !== 'undefined' ? window.location.origin : "http://localhost:3000"
   })
 
   const { toast } = useToast()
@@ -398,6 +399,19 @@ export default function InstallPage() {
                 />
                 <p className="text-xs text-gray-500">
                   A short description of your exam platform.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="appUrl">Application URL</Label>
+                <Input
+                  id="appUrl"
+                  value={siteConfig.appUrl}
+                  onChange={handleSiteChange}
+                  placeholder="https://yourdomain.com"
+                  required
+                />
+                <p className="text-xs text-gray-500">
+                  The full URL where your application will be accessible (e.g., https://exam.yourdomain.com)
                 </p>
               </div>
               <div className="space-y-2">
