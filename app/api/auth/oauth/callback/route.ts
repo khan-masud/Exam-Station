@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const error = searchParams.get('error');
-    const provider_name = searchParams.get('provider');
 
     if (error) {
       return NextResponse.json(
@@ -22,17 +21,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!code || !state || !provider_name) {
+    if (!code || !state) {
       return NextResponse.json(
         { error: 'Missing OAuth parameters' },
         { status: 400 }
       );
     }
 
-    // Verify state token
+    // Verify state token and get provider_name from database
     const [tokens] = await pool.query(
-      `SELECT * FROM oauth_tokens WHERE state = ? AND provider_name = ? AND is_used = FALSE`,
-      [state, provider_name]
+      `SELECT * FROM oauth_tokens WHERE state = ? AND is_used = FALSE`,
+      [state]
     ) as any;
 
     if (!tokens || tokens.length === 0) {
@@ -43,6 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     const tokenRecord = tokens[0];
+    const provider_name = tokenRecord.provider_name;
 
     // Get OAuth provider configuration
     const [providers] = await pool.query(

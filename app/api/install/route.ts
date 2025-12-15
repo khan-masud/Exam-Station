@@ -636,16 +636,17 @@ export async function POST(req: NextRequest) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
       `)
 
-      // Insert default OAuth providers (Google and Facebook)
+      // Insert default OAuth providers (Google and Facebook) with correct redirect_uri
       const googleId = uuidv4()
       const facebookId = uuidv4()
+      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/oauth/callback`
       
       await query(`
-        INSERT IGNORE INTO oauth_providers (id, provider_name, provider_type, authorization_url, token_url, userinfo_url, scopes, icon_url, button_color, is_enabled)
+        INSERT IGNORE INTO oauth_providers (id, provider_name, provider_type, authorization_url, token_url, userinfo_url, redirect_uri, scopes, icon_url, button_color, is_enabled)
         VALUES 
-        (?, 'google', 'oauth2', 'https://accounts.google.com/o/oauth2/v2/auth', 'https://oauth2.googleapis.com/token', 'https://www.googleapis.com/oauth2/v2/userinfo', 'openid email profile', 'https://www.gstatic.com/images/branding/product/1x/googleg_standard_color_128dp.png', '#4285f4', 0),
-        (?, 'facebook', 'oauth2', 'https://www.facebook.com/v18.0/dialog/oauth', 'https://graph.facebook.com/v18.0/oauth/access_token', 'https://graph.facebook.com/me?fields=id,name,email,picture', 'public_profile email', 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg', '#1877f2', 0)
-      `, [googleId, facebookId])
+        (?, 'google', 'oauth2', 'https://accounts.google.com/o/oauth2/v2/auth', 'https://oauth2.googleapis.com/token', 'https://www.googleapis.com/oauth2/v2/userinfo', ?, 'openid email profile', 'https://www.gstatic.com/images/branding/product/1x/googleg_standard_color_128dp.png', '#4285f4', 0),
+        (?, 'facebook', 'oauth2', 'https://www.facebook.com/v18.0/dialog/oauth', 'https://graph.facebook.com/v18.0/oauth/access_token', 'https://graph.facebook.com/me?fields=id,name,email,picture', ?, 'public_profile email', 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg', '#1877f2', 0)
+      `, [googleId, redirectUri, facebookId, redirectUri])
 
       console.log('[Install] ✓ All analytics tables verified/created')
     } catch (error: any) {
