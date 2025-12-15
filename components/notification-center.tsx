@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/hooks/use-auth';
+import { useSocket } from '@/hooks/use-socket';
 
 export interface Notification {
   id: string;
@@ -33,9 +34,10 @@ export function NotificationCenter() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const { on } = useSocket({ autoConnect: true });
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) return; // Don't fetch if not authenticated
+    if (!user) return;
     
     try {
       setLoading(true);
@@ -43,13 +45,10 @@ export function NotificationCenter() {
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
-        setUnreadCount(data.notifications?.filter((n: Notification) => !n.is_read).length || 0);
-      } else if (response.status !== 401) {
-        // Only log non-authentication errors
-        console.error('[NotificationCenter] Failed to fetch, status:', response.status);
+        setUnreadCount(data.unread || 0);
       }
     } catch (error) {
-      console.error('[NotificationCenter] Fetch error:', error);
+      // Failed to fetch notifications
     } finally {
       setLoading(false);
     }
@@ -67,6 +66,20 @@ export function NotificationCenter() {
     
     return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  // Listen for real-time notifications via socket
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = on('new_notification', (notification: Notification) => {
+      setNotifications(prev => [notification, ...prev]);
+      if (!notification.is_read) {
+        setUnreadCount(prev => prev + 1);
+      }
+    });
+
+    return unsubscribe;
+  }, [user, on]);
 
   useEffect(() => {
     if (open) {
@@ -89,7 +102,7 @@ export function NotificationCenter() {
         setUnreadCount(Math.max(0, unreadCount - 1));
       }
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      // Failed to mark notification as read
     }
   };
 
@@ -103,7 +116,7 @@ export function NotificationCenter() {
         setNotifications(notifications.filter(n => n.id !== id));
       }
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      // Failed to delete notification
     }
   };
 

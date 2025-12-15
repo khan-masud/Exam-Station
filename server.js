@@ -70,5 +70,14 @@ app.prepare().then(() => {
     })
     .listen(port, () => {
       console.log(`> Ready on http://${hostname}:${port}`)
+      
+      // Initialize Socket.IO after server starts
+      try {
+        const { initSocket } = require('./lib/socket')
+        initSocket(httpServer)
+        console.log('> Socket.IO initialized')
+      } catch (err) {
+        console.error('Failed to initialize Socket.IO:', err)
+      }
     })
 })

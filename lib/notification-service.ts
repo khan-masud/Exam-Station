@@ -1,5 +1,5 @@
 import pool from './db';
-import { v4 as uuidv4 } from 'uuid';
+import { socketEvents } from './socket';
 
 export interface NotificationData {
   recipientId: string;
@@ -8,6 +8,7 @@ export interface NotificationData {
   title: string;
   message: string;
   link?: string;
+  actionLabel?: string;
 }
 
 /**
@@ -15,22 +16,40 @@ export interface NotificationData {
  */
 export async function createNotification(data: NotificationData) {
   try {
-    const notificationId = uuidv4();
-    
-    await pool.query(
+    const [result] = await pool.query(
       `INSERT INTO notifications 
-       (id, user_id, sender_id, type, title, message, link) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (user_id, type, title, message, action_url, action_label) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
-        notificationId,
         data.recipientId,
-        data.senderId || null,
         data.type,
         data.title,
         data.message,
-        data.link || null
+        data.link || null,
+        data.actionLabel || null
       ]
-    );
+    ) as any;
+
+    const notificationId = result.insertId;
+
+    // Try to emit socket event, but don't fail if it doesn't work
+    try {
+      if (typeof socketEvents !== 'undefined' && socketEvents.emitNotification) {
+        socketEvents.emitNotification(data.recipientId, {
+          id: notificationId,
+          user_id: data.recipientId,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          action_url: data.link || null,
+          is_read: false,
+          created_at: new Date().toISOString()
+        });
+      }
+    } catch (socketError) {
+      // Socket emission failed, but notification was created successfully
+      // This is okay - polling will pick it up
+    }
 
     return notificationId;
   } catch (error) {
@@ -57,7 +76,8 @@ export async function notifyExamResultPublished(studentId: string, examId: strin
     type: 'exam_result',
     title: 'Exam Result Published',
     message: `Your result for "${examTitle}" is now available. You scored ${score}/${totalMarks}.`,
-    link: `/student/results`
+    link: `/student/results`,
+    actionLabel: 'View Results'
   });
 }
 
@@ -73,7 +93,8 @@ export async function notifyUpcomingExam(studentId: string, examId: string, exam
     type: 'exam_reminder',
     title: 'Upcoming Exam Reminder',
     message: `"${examTitle}" starts in ${timeText}. Make sure you're prepared!`,
-    link: `/student/browse-exams`
+    link: `/student/browse-exams`,
+    actionLabel: 'View Exams'
   });
 }
 
@@ -86,7 +107,8 @@ export async function notifyExamRegistrationApproved(studentId: string, examId: 
     type: 'exam_registration',
     title: 'Exam Registration Approved',
     message: `Your registration for "${examTitle}" has been approved. You can now take the exam.`,
-    link: `/student/browse-exams`
+    link: `/student/browse-exams`,
+    actionLabel: 'Take Exam'
   });
 }
 
@@ -99,7 +121,8 @@ export async function notifyExamNowLive(studentId: string, examId: string, examT
     type: 'exam_live',
     title: 'Exam is Now Live!',
     message: `"${examTitle}" is now available. Click here to start.`,
-    link: `/student/browse-exams`
+    link: `/student/browse-exams`,
+    actionLabel: 'Start Exam'
   });
 }
 
@@ -114,7 +137,8 @@ export async function notifyPaymentReceived(studentId: string, paymentId: string
     type: 'payment_received',
     title: 'Payment Approved ✓',
     message: `Your payment of ${currency} ${amount} for "${purpose}" has been approved and confirmed.`,
-    link: `/student/payments`
+    link: `/student/payments`,
+    actionLabel: 'View Payments'
   });
 }
 
@@ -127,7 +151,8 @@ export async function notifyPaymentPending(studentId: string, paymentId: string,
     type: 'payment_pending',
     title: 'Payment Under Verification',
     message: `Your payment of ${currency} ${amount} is being verified. You'll be notified once confirmed.`,
-    link: `/student/payments`
+    link: `/student/payments`,
+    actionLabel: 'View Status'
   });
 }
 
@@ -140,7 +165,8 @@ export async function notifyPaymentRejected(studentId: string, paymentId: string
     type: 'payment_rejected',
     title: 'Payment Rejected ✗',
     message: `Your payment of ${currency} ${amount} was rejected${reason ? `: ${reason}` : ''}. Please contact support or try again.`,
-    link: `/student/payments`
+    link: `/student/payments`,
+    actionLabel: 'View Details'
   });
 }
 
@@ -155,7 +181,8 @@ export async function notifySupportReply(studentId: string, ticketId: string, ti
     type: 'support_reply',
     title: 'New Support Reply',
     message: `Your support ticket "${ticketSubject}" has a new reply from our team.`,
-    link: `/student/support/${ticketId}`
+    link: `/student/support/${ticketId}`,
+    actionLabel: 'View Reply'
   });
 }
 
@@ -168,7 +195,8 @@ export async function notifySupportStatusChange(studentId: string, ticketId: str
     type: 'support_status',
     title: 'Support Ticket Updated',
     message: `Your ticket "${ticketSubject}" status changed to: ${newStatus}`,
-    link: `/student/support/${ticketId}`
+    link: `/student/support/${ticketId}`,
+    actionLabel: 'View Ticket'
   });
 }
 
@@ -181,15 +209,21 @@ export async function notifyAdminNewTicket(ticketId: string, ticketSubject: stri
     `SELECT id FROM users WHERE role = 'admin'`
   ) as any;
 
+  if (!admins || admins.length === 0) {
+    throw new Error('No admin users found in the system');
+  }
+
   const notifications = admins.map((admin: any) => ({
     recipientId: admin.id,
     type: 'new_support_ticket',
     title: 'New Support Ticket',
     message: `${studentName} created a new ticket: "${ticketSubject}"`,
-    link: `/admin/support`
+    link: `/admin/support`,
+    actionLabel: 'View Ticket'
   }));
 
-  return createBulkNotifications(notifications);
+  const results = await createBulkNotifications(notifications);
+  return results;
 }
 
 /**
@@ -205,7 +239,8 @@ export async function notifyAdminTicketReply(ticketId: string, ticketSubject: st
     type: 'ticket_reply',
     title: 'New Ticket Reply',
     message: `${studentName} replied to ticket: "${ticketSubject}"`,
-    link: `/admin/support/${ticketId}`
+    link: `/admin/support/${ticketId}`,
+    actionLabel: 'View Reply'
   }));
 
   return createBulkNotifications(notifications);
@@ -222,7 +257,8 @@ export async function notifyProgramEnrollment(studentId: string, programId: stri
     type: 'program_enrollment',
     title: 'Program Enrollment Confirmed',
     message: `You've been successfully enrolled in "${programName}".`,
-    link: `/student/programs`
+    link: `/student/programs`,
+    actionLabel: 'View Programs'
   });
 }
 
@@ -235,7 +271,8 @@ export async function notifyProgramExpiringSoon(studentId: string, programId: st
     type: 'program_expiring',
     title: 'Program Access Expiring',
     message: `Your access to "${programName}" will expire in ${daysLeft} days.`,
-    link: `/student/programs`
+    link: `/student/programs`,
+    actionLabel: 'Renew Access'
   });
 }
 
@@ -280,7 +317,8 @@ export async function notifyAccountUpdate(userId: string, updateType: string, de
     type: 'account_update',
     title: 'Account Updated',
     message: `Your ${updateType} has been updated: ${details}`,
-    link: `/student/profile`
+    link: `/student/profile`,
+    actionLabel: 'View Profile'
   });
 }
 
@@ -299,7 +337,8 @@ export async function notifyAdminNewUser(userId: string, userName: string, userE
     type: 'new_user',
     title: 'New User Registration',
     message: `${userName} (${userEmail}) has registered on the platform.`,
-    link: `/admin/users`
+    link: `/admin/users`,
+    actionLabel: 'View User'
   }));
 
   return createBulkNotifications(notifications);
@@ -318,7 +357,8 @@ export async function notifyAdminNewPayment(paymentId: string, studentName: stri
     type: 'new_payment',
     title: 'New Payment Submission',
     message: `${studentName} submitted a payment of ${currency} ${amount} via ${method}.`,
-    link: `/admin/payments`
+    link: `/admin/payments`,
+    actionLabel: 'Review Payment'
   }));
 
   return createBulkNotifications(notifications);
@@ -337,7 +377,8 @@ export async function notifyAdminExamSubmission(examId: string, examTitle: strin
     type: 'exam_submission',
     title: 'New Exam Submission',
     message: `${studentName} completed "${examTitle}" and submitted for evaluation.`,
-    link: `/admin/exams`
+    link: `/admin/exams`,
+    actionLabel: 'Review Exam'
   }));
 
   return createBulkNotifications(notifications);

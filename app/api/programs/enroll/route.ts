@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const programs = await query(
       `SELECT p.*,
               (SELECT COUNT(*) FROM program_enrollments WHERE program_id = p.id AND status = 'active') as enrolled_count,
-              (SELECT COUNT(*) FROM exams WHERE program_id = p.id) as exam_count,
+              (SELECT COUNT(*) FROM exam_programs ep WHERE ep.program_id = p.id) as exam_count,
               pe.id as enrollment_id,
               pe.status as enrollment_status,
               pe.enrolled_at

@@ -28,7 +28,6 @@ async function generateTicketId(): Promise<string> {
     
     return 'TK-000001'
   } catch (error) {
-    console.error('Error generating ticket ID:', error)
     return `TK-${Date.now().toString().slice(-6)}`
   }
 }
@@ -126,7 +125,6 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Get tickets error:', error)
     return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 })
   }
 }
@@ -181,7 +179,6 @@ export async function POST(req: NextRequest) {
 
       for (const file of files) {
         if (file.size > 10 * 1024 * 1024) {
-          console.warn(`File ${file.name} exceeds 10MB limit, skipping`)
           continue
         }
 
@@ -216,13 +213,43 @@ export async function POST(req: NextRequest) {
         [decoded.userId]
       ) as any
       
-      await notifyAdminNewTicket(
+      const result = await notifyAdminNewTicket(
         ticketId,
         title,
         userInfo[0]?.full_name || 'Student'
       )
-    } catch (notifError) {
-      console.error('Failed to send admin notification:', notifError)
+      
+      // Log for debugging
+      if (result && result.length > 0) {
+        return NextResponse.json({
+          success: true,
+          ticket_id: ticketId,
+          ticket: {
+            id: ticketId,
+            title,
+            description,
+            category,
+            priority,
+            status: 'open'
+          },
+          notifications_sent: result.length
+        })
+      }
+    } catch (notifError: any) {
+      // Log the error details
+      return NextResponse.json({
+        success: true,
+        ticket_id: ticketId,
+        ticket: {
+          id: ticketId,
+          title,
+          description,
+          category,
+          priority,
+          status: 'open'
+        },
+        notification_error: notifError.message || 'Failed to send notifications'
+      })
     }
 
     return NextResponse.json({
@@ -238,7 +265,6 @@ export async function POST(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Create ticket error:', error)
     return NextResponse.json({ error: 'Failed to create ticket' }, { status: 500 })
   }
 }

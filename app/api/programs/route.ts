@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       SELECT p.*, 
              u.full_name as created_by_name,
              (SELECT COUNT(*) FROM program_enrollments WHERE program_id = p.id AND status = 'active') as enrolled_count,
-             (SELECT COUNT(*) FROM exams WHERE program_id = p.id) as exam_count
+             (SELECT COUNT(*) FROM exam_programs WHERE program_id = p.id) as exam_count
       FROM programs p
       LEFT JOIN users u ON p.created_by = u.id
       WHERE 1=1

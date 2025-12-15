@@ -475,9 +475,9 @@ export default function StudentPaymentsPage() {
                 <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
                 {appliedCoupon ? (
                   <div className="p-4 border-2 border-green-500 bg-green-50 dark:bg-green-950 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-500" />
                         <span className="font-semibold text-green-900 dark:text-green-100">
                           Coupon Applied: {appliedCoupon.coupon.code}
                         </span>
@@ -487,27 +487,28 @@ export default function StudentPaymentsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={removeCoupon}
+                        className="h-8 text-xs"
                       >
                         Remove
                       </Button>
                     </div>
                     {appliedCoupon.coupon.description && (
-                      <p className="text-xs text-green-700 dark:text-green-300 mb-2">
+                      <p className="text-xs text-green-700 dark:text-green-300 mb-3">
                         {appliedCoupon.coupon.description}
                       </p>
                     )}
-                    <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Original</p>
-                        <p className="font-semibold">\u09f3{appliedCoupon.originalAmount.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground mb-1">Original</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">৳{appliedCoupon.originalAmount.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Discount</p>
-                        <p className="font-semibold text-green-600">-\u09f3{appliedCoupon.discountAmount.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground mb-1">Discount</p>
+                        <p className="font-semibold text-green-600 dark:text-green-500">-৳{appliedCoupon.discountAmount.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Final Amount</p>
-                        <p className="font-semibold text-lg">\u09f3{appliedCoupon.finalAmount.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground mb-1">Final Amount</p>
+                        <p className="font-bold text-lg text-gray-900 dark:text-gray-100">৳{appliedCoupon.finalAmount.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>

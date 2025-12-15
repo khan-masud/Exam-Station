@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { query } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
-import { notifyPaymentReceived, notifyPaymentRejected } from '@/lib/notification-service'
+import { notifyPaymentReceived, notifyPaymentRejected, notifyProgramEnrollment } from '@/lib/notification-service'
 
 // Admin approve/reject manual payment
 export async function POST(request: NextRequest) {
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         ? JSON.parse(transaction.payment_details) 
         : transaction.payment_details || {}
     } catch (e) {
-      console.error('Error parsing payment details:', e)
+      // Failed to parse payment details
     }
 
     const programId = (paymentDetails as any).program_id
@@ -129,36 +129,34 @@ export async function POST(request: NextRequest) {
     try {
       const itemTitle = transaction.program_title || transaction.exam_title || 'Item'
       
-      console.log('[Payment Approve] Sending notification to user:', transaction.user_id);
-      
       if (finalAction === 'approve') {
-        const notificationId = await notifyPaymentReceived(
+        await notifyPaymentReceived(
           transaction.user_id,
           transactionId,
           transaction.amount,
           itemTitle,
           currency
         );
-        console.log('[Payment Approve] Approval notification sent:', notificationId);
+        
+        // Send program enrollment notification if it's a program
+        if (programId && transaction.program_title) {
+          await notifyProgramEnrollment(
+            transaction.user_id,
+            programId,
+            transaction.program_title
+          );
+        }
       } else {
-        const notificationId = await notifyPaymentRejected(
+        await notifyPaymentRejected(
           transaction.user_id,
           transactionId,
           transaction.amount,
           finalNotes,
           currency
         );
-        console.log('[Payment Approve] Rejection notification sent:', notificationId);
       }
     } catch (notifError: any) {
-      console.error('[Payment Approve] Failed to send in-app notification:', notifError);
-      console.error('[Payment Approve] Error details:', {
-        message: notifError.message,
-        stack: notifError.stack,
-        userId: transaction.user_id,
-        transactionId
-      });
-      // Don't fail the request if notification fails
+      // Failed to send notification, but continue
     }
 
     // Send email notification
@@ -194,7 +192,7 @@ export async function POST(request: NextRequest) {
         `
       })
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError)
+      // Failed to send email notification
     }
 
     return NextResponse.json({
@@ -204,7 +202,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Approve payment error:', error)
     return NextResponse.json(
       { error: 'Failed to process payment approval' },
       { status: 500 }
@@ -249,7 +246,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Get pending payments error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch pending payments' },
       { status: 500 }

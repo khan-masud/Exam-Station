@@ -138,6 +138,12 @@ export const socketEvents = {
     io.to('role:student').emit('new_exam_available', exam)
   },
 
+  // Emit new notification to user
+  emitNotification(userId: string, notification: any) {
+    if (!io) return
+    io.to(`user:${userId}`).emit('new_notification', notification)
+  },
+
   // Emit exam status change
   emitExamStatusChange(examId: string, status: string) {
     if (!io) return

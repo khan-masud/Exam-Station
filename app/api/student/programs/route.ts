@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         p.*,
         (SELECT COUNT(*) FROM program_enrollments WHERE program_id = p.id AND status = 'active') as enrolled_count,
-        (SELECT COUNT(*) FROM exams WHERE program_id = p.id) as exam_count,
+        (SELECT COUNT(*) FROM exam_programs WHERE program_id = p.id) as exam_count,
         pe.id IS NOT NULL as isEnrolled,
         pe.status as enrollmentStatus,
         pe.enrolled_at as enrolledAt,

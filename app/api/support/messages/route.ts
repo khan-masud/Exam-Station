@@ -98,43 +98,31 @@ export async function POST(req: NextRequest) {
     // Send in-app notification if admin replied to student ticket
     if (isAdminResponse && ticket.student_id) {
       try {
-        console.log('[Support Message] Sending reply notification to student:', ticket.student_id);
-        const notificationId = await notifySupportReply(
+        await notifySupportReply(
           ticket.student_id,
           finalTicketId,
           ticket.title || ticket.subject || 'your ticket'
         );
-        console.log('[Support Message] Reply notification sent:', notificationId);
       } catch (notifError: any) {
-        console.error('[Support Message] Failed to send support reply notification:', notifError);
-        console.error('[Support Message] Error details:', {
-          message: notifError.message,
-          stack: notifError.stack,
-          studentId: ticket.student_id,
-          ticketId: finalTicketId
-        });
-        // Don't fail the request if notification fails
+        // Failed to send notification, but continue
       }
     }
 
     // Send notification to admin if student replied to ticket
     if (!isAdminResponse && ticket.student_id) {
       try {
-        console.log('[Support Message] Sending ticket reply notification to admins');
         const [userInfo] = await pool.query(
           `SELECT full_name FROM users WHERE id = ?`,
           [decoded.userId]
         ) as any;
         
-        const notificationId = await notifyAdminTicketReply(
+        await notifyAdminTicketReply(
           finalTicketId,
           ticket.title || ticket.subject || 'Support Ticket',
           userInfo[0]?.full_name || 'Student'
         );
-        console.log('[Support Message] Admin notification sent:', notificationId);
       } catch (notifError: any) {
-        console.error('[Support Message] Failed to send admin notification:', notifError);
-        // Don't fail the request if notification fails
+        // Failed to send notification, but continue
       }
     }
 
@@ -191,7 +179,6 @@ export async function POST(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Add message error:', error)
     return NextResponse.json({ error: 'Failed to add message' }, { status: 500 })
   }
 }

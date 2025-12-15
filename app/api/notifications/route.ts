@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import pool from '@/lib/db';
+import { socketEvents } from '@/lib/socket';
 
 /**
  * GET /api/notifications
@@ -44,6 +45,14 @@ export async function GET(request: NextRequest) {
 
     const [notifications] = await pool.query(query, params) as any;
 
+    // Get unread count
+    const [unreadResult] = await pool.query(
+      `SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = 0`,
+      [decoded.userId]
+    ) as any;
+
+    const unreadCount = (Array.isArray(unreadResult) && unreadResult[0]) ? unreadResult[0].unread : 0;
+
     // Get total count
     const [countResult] = await pool.query(
       `SELECT COUNT(*) as total FROM notifications WHERE user_id = ?${unreadOnly ? ' AND is_read = FALSE' : ''}`,
@@ -55,10 +64,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       notifications: Array.isArray(notifications) ? notifications : [],
       total,
-      unread: 0,
+      unread: unreadCount,
     });
   } catch (error) {
-    console.error('[Notifications API] Get error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch notifications' },
       { status: 500 }
@@ -125,13 +133,31 @@ export async function POST(request: NextRequest) {
 
     const insertId = (result && result.insertId) ? result.insertId : crypto.randomUUID();
 
+    try {
+      socketEvents.emitNotification(user_id, {
+        id: insertId,
+        user_id,
+        type,
+        category: category || 'general',
+        title,
+        message,
+        description,
+        action_url,
+        action_label,
+        priority: priority || 'normal',
+        is_read: false,
+        created_at: new Date().toISOString()
+      });
+    } catch (socketError) {
+      // Socket emission failed, but notification was created
+    }
+
     return NextResponse.json({
       success: true,
       id: insertId,
       message: 'Notification created successfully',
     });
   } catch (error) {
-    console.error('[Notifications API] Post error:', error);
     return NextResponse.json(
       { error: 'Failed to create notification' },
       { status: 500 }

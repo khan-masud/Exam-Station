@@ -12,7 +12,8 @@ interface Notification {
   title: string;
   message: string;
   type: string;
-  link?: string;
+  action_url?: string;
+  action_label?: string;
   is_read: boolean;
   created_at: string;
 }
@@ -133,13 +134,15 @@ export default function AdminNotificationsPage() {
                       <p className="text-xs text-muted-foreground">
                         {new Date(notification.created_at).toLocaleString()}
                       </p>
-                      {notification.link && (
-                        <a href={notification.link} className="text-sm text-primary hover:underline mt-2 inline-block">
-                          View Details →
-                        </a>
-                      )}
                     </div>
                     <div className="flex gap-2">
+                      {notification.action_url && (
+                        <a href={notification.action_url}>
+                          <Button variant="default" size="sm">
+                            {notification.action_label || 'View'}
+                          </Button>
+                        </a>
+                      )}
                       {!notification.is_read && (
                         <Button
                           variant="ghost"

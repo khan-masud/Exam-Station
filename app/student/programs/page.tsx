@@ -7,22 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { 
-  Calendar, DollarSign, Search, CheckCircle, XCircle, RefreshCw, Users, 
+  Calendar, DollarSign, Search, CheckCircle, RefreshCw, Users, 
   BookOpen, LogOut, GraduationCap, AlertCircle 
 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 
 interface Program {
   id: string
@@ -50,12 +40,6 @@ export default function StudentProgramsPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [enrolling, setEnrolling] = useState<string | null>(null)
-  const [cancelDialog, setCancelDialog] = useState<{ open: boolean; programId: string | null; programTitle: string }>({
-    open: false,
-    programId: null,
-    programTitle: ""
-  })
-  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     fetchPrograms()
@@ -123,47 +107,6 @@ export default function StudentProgramsPage() {
       toast.error('Failed to enroll')
     } finally {
       setEnrolling(null)
-    }
-  }
-
-  const openCancelDialog = (programId: string, programTitle: string) => {
-    setCancelDialog({
-      open: true,
-      programId,
-      programTitle
-    })
-  }
-
-  const closeCancelDialog = () => {
-    setCancelDialog({
-      open: false,
-      programId: null,
-      programTitle: ""
-    })
-  }
-
-  const confirmCancelEnrollment = async () => {
-    if (!cancelDialog.programId) return
-
-    try {
-      setCancelling(true)
-      const response = await fetch(`/api/programs/enroll?programId=${cancelDialog.programId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
-
-      if (response.ok) {
-        toast.success('Enrollment cancelled successfully')
-        closeCancelDialog()
-        fetchPrograms()
-      } else {
-        const data = await response.json()
-        toast.error(data.error || 'Failed to cancel enrollment')
-      }
-    } catch (error) {
-      toast.error('Failed to cancel enrollment')
-    } finally {
-      setCancelling(false)
     }
   }
 
@@ -310,20 +253,9 @@ export default function StudentProgramsPage() {
               {/* Actions */}
               <div className="pt-2">
                 {program.isEnrolled ? (
-                  <div className="space-y-2">
-                    <Link href="/student/browse-exams" className="block">
-                      <Button className="w-full">View Exams</Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => openCancelDialog(program.id, program.title)}
-                      disabled={cancelling}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Cancel Enrollment
-                    </Button>
-                  </div>
+                  <Link href="/student/browse-exams" className="block">
+                    <Button className="w-full">View Exams</Button>
+                  </Link>
                 ) : (
                   <Button
                     className="w-full"
@@ -352,38 +284,6 @@ export default function StudentProgramsPage() {
           </CardContent>
         </Card>
       )}
-
-      {/* Cancel Enrollment Confirmation Dialog */}
-      <AlertDialog open={cancelDialog.open} onOpenChange={(open) => {
-        if (!open) closeCancelDialog()
-      }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-600" />
-              Cancel Enrollment?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel your enrollment in <strong>{cancelDialog.programTitle}</strong>?
-              <br />
-              <br />
-              You will lose access to all exams in this program and any progress you&apos;ve made. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelling}>
-              Keep Enrollment
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmCancelEnrollment}
-              disabled={cancelling}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {cancelling ? 'Cancelling...' : 'Cancel Enrollment'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

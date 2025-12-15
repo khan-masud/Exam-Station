@@ -33,24 +33,17 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
       })
       clearTimeout(timeoutId)
       
-      console.log('[OAuthButtons] Response status:', response.status)
       if (response.ok) {
         const data = await response.json()
-        console.log('[OAuthButtons] Received data:', data)
-        console.log('[OAuthButtons] Providers array:', data.providers)
         const providers = data.providers || []
         const hasGoogle = providers.some((p: any) => p.provider_name === 'google')
         const hasFacebook = providers.some((p: any) => p.provider_name === 'facebook')
-        console.log('[OAuthButtons] Google enabled:', hasGoogle)
-        console.log('[OAuthButtons] Facebook enabled:', hasFacebook)
         setGoogleEnabled(hasGoogle)
         setFacebookEnabled(hasFacebook)
       } else {
-        console.error('[OAuthButtons] Failed to fetch, status:', response.status)
         setError(true)
       }
     } catch (error) {
-      console.error('[OAuthButtons] Failed to fetch OAuth settings:', error)
       setError(true)
     } finally {
       setLoading(false)
@@ -75,28 +68,22 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
         // Redirect to OAuth provider
         window.location.href = data.authorization_url
       } else {
-        console.error("OAuth initiation failed:", data.error)
         alert(data.error || "Failed to initiate OAuth login")
         setLoading(false)
       }
     } catch (error) {
-      console.error("OAuth error:", error)
       alert("An error occurred. Please try again.")
       setLoading(false)
     }
   }
 
   // Don't show anything if loading or no providers enabled
-  console.log('[OAuthButtons] Render check - loading:', loading, 'googleEnabled:', googleEnabled, 'facebookEnabled:', facebookEnabled)
   if (loading) {
-    console.log('[OAuthButtons] Still loading, returning null')
     return null
   }
   if (!googleEnabled && !facebookEnabled) {
-    console.log('[OAuthButtons] No providers enabled, returning null')
     return null
   }
-  console.log('[OAuthButtons] Rendering buttons')
 
   return (
     <div className="space-y-3">

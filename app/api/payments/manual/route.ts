@@ -103,8 +103,6 @@ export async function POST(request: NextRequest) {
         body = JSON.parse(rawBody)
       }
     } catch (error: any) {
-      console.error('Request parsing error:', error)
-      console.error('Error message:', error.message)
       return NextResponse.json({ 
         error: 'Invalid request data. Please ensure all fields are filled correctly.' 
       }, { status: 400 })
@@ -239,7 +237,6 @@ export async function POST(request: NextRequest) {
           [couponId]
         )
       } catch (couponError) {
-        console.error('Failed to record coupon usage:', couponError)
         // Don't fail the payment if coupon tracking fails
       }
     }
@@ -282,7 +279,6 @@ export async function POST(request: NextRequest) {
         currency
       );
     } catch (notifError) {
-      console.error('[Payment] Failed to send admin notification:', notifError);
       // Don't fail the request if notification fails
     }
 
@@ -296,7 +292,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Manual payment error:', error)
     return NextResponse.json(
       { error: 'Failed to process manual payment' },
       { status: 500 }
@@ -348,7 +343,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Get manual payment error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch payment details' },
       { status: 500 }
