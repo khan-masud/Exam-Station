@@ -58,6 +58,9 @@ export default function ThemeEditorPage() {
           siteDescription: formData.site_description,
           metaTitle: formData.meta_title,
           metaDescription: formData.meta_description,
+          metaKeywords: formData.meta_keywords,
+          ogImage: formData.og_image,
+          googleAnalyticsId: formData.google_analytics_id,
           logoUrl: formData.logo_url,
           faviconUrl: formData.favicon_url,
           backgroundType: formData.background_type,
@@ -138,10 +141,12 @@ export default function ThemeEditorPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="sections">Sections</TabsTrigger>
           <TabsTrigger value="menus">Menus</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
 
         <TabsContent value="sections">
@@ -234,6 +239,143 @@ export default function ThemeEditorPage() {
                   onChange={(e) => handleChange("linkedin_url", e.target.value)}
                   placeholder="https://linkedin.com/company/yourcompany"
                 />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="general" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Site Information</CardTitle>
+              <CardDescription>Configure basic site information and branding</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Site Email</Label>
+                  <Input
+                    value={formData.contact_email || ""}
+                    onChange={(e) => handleChange("contact_email", e.target.value)}
+                    placeholder="support@example.com"
+                    type="email"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Contact email for inquiries</p>
+                </div>
+                <div>
+                  <Label>Site Phone</Label>
+                  <Input
+                    value={formData.contact_phone || ""}
+                    onChange={(e) => handleChange("contact_phone", e.target.value)}
+                    placeholder="+1234567890"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Contact phone number</p>
+                </div>
+              </div>
+
+              <div>
+                <Label>Site Address</Label>
+                <Textarea
+                  value={formData.contact_address || ""}
+                  onChange={(e) => handleChange("contact_address", e.target.value)}
+                  placeholder="Your office address"
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Physical address for footer</p>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-semibold mb-4">Branding</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Logo URL</Label>
+                    <Input
+                      value={formData.logo_url || ""}
+                      onChange={(e) => handleChange("logo_url", e.target.value)}
+                      placeholder="https://example.com/logo.png"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">URL to your logo image</p>
+                  </div>
+                  <div>
+                    <Label>Favicon URL</Label>
+                    <Input
+                      value={formData.favicon_url || ""}
+                      onChange={(e) => handleChange("favicon_url", e.target.value)}
+                      placeholder="https://example.com/favicon.ico"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Browser tab icon</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="seo" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO & Meta Tags</CardTitle>
+              <CardDescription>Optimize your site for search engines and social media</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Meta Title</Label>
+                <Input
+                  value={formData.meta_title || ""}
+                  onChange={(e) => handleChange("meta_title", e.target.value)}
+                  placeholder="Exam System - Online Assessment Platform"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Page title for search engines (50-60 characters recommended)</p>
+              </div>
+
+              <div>
+                <Label>Meta Description</Label>
+                <Textarea
+                  value={formData.meta_description || ""}
+                  onChange={(e) => handleChange("meta_description", e.target.value)}
+                  placeholder="Comprehensive online exam platform for educational institutions"
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Description for search results (150-160 characters recommended)</p>
+              </div>
+
+              <div>
+                <Label>Keywords</Label>
+                <Textarea
+                  value={formData.meta_keywords || ""}
+                  onChange={(e) => handleChange("meta_keywords", e.target.value)}
+                  placeholder="exam, assessment, online test, education, quiz"
+                  rows={2}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Comma-separated keywords for SEO</p>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-semibold mb-4">Social Media</h3>
+                
+                <div>
+                  <Label>Open Graph Image</Label>
+                  <Input
+                    value={formData.og_image || ""}
+                    onChange={(e) => handleChange("og_image", e.target.value)}
+                    placeholder="https://example.com/og-image.png"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Image shown when sharing on social media (1200x630px recommended)</p>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-semibold mb-4">Analytics</h3>
+                
+                <div>
+                  <Label>Google Analytics ID</Label>
+                  <Input
+                    value={formData.google_analytics_id || ""}
+                    onChange={(e) => handleChange("google_analytics_id", e.target.value)}
+                    placeholder="G-XXXXXXXXXX"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Track website traffic with Google Analytics</p>
+                </div>
               </div>
             </CardContent>
           </Card>

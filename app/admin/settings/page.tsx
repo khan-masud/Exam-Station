@@ -513,22 +513,16 @@ export default function SettingsPage() {
     general: {
       organizationName: "Exam System",
       sessionTimeout: 30,
-      siteName: "",
-      siteTagline: "",
-      siteEmail: "",
-      sitePhone: "",
-      siteAddress: "",
-      logoUrl: "",
-      faviconUrl: "",
-      copyrightText: "",
     },
-    // SEO
-    seo: {
-      title: "",
-      description: "",
-      keywords: "",
-      ogImage: "",
-      googleAnalyticsId: "",
+    // SMTP
+    smtp: {
+      host: "",
+      port: 587,
+      secure: false,
+      user: "",
+      password: "",
+      fromEmail: "",
+      fromName: "",
     },
     // OAuth
     oauth: {
@@ -687,14 +681,14 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="authentication" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="general">
-            <Settings className="w-4 h-4 mr-2" />
-            General
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="authentication">
             <Users className="w-4 h-4 mr-2" />
             Auth
+          </TabsTrigger>
+          <TabsTrigger value="smtp">
+            <Globe className="w-4 h-4 mr-2" />
+            SMTP
           </TabsTrigger>
           <TabsTrigger value="payments">
             <CreditCard className="w-4 h-4 mr-2" />
@@ -707,10 +701,6 @@ export default function SettingsPage() {
           <TabsTrigger value="exams">
             <AlertTriangle className="w-4 h-4 mr-2" />
             Exams
-          </TabsTrigger>
-          <TabsTrigger value="seo">
-            <Globe className="w-4 h-4 mr-2" />
-            SEO
           </TabsTrigger>
           <TabsTrigger value="oauth">
             <Lock className="w-4 h-4 mr-2" />
@@ -1436,234 +1426,140 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* General Settings Tab */}
-        <TabsContent value="general" className="space-y-4">
+        {/* SMTP Settings Tab */}
+        <TabsContent value="smtp" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Configure basic site information and branding</CardDescription>
+              <CardTitle>SMTP Email Configuration</CardTitle>
+              <CardDescription>Configure email server settings for sending notifications and communications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="siteName">Site Name</Label>
+                  <Label htmlFor="smtpHost">SMTP Host</Label>
                   <Input
-                    id="siteName"
-                    placeholder="Exam System"
-                    value={settings.general?.siteName || ""}
+                    id="smtpHost"
+                    placeholder="smtp.gmail.com"
+                    value={settings.smtp?.host || ""}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        general: { ...settings.general, siteName: e.target.value },
+                        smtp: { ...settings.smtp, host: e.target.value },
                       })
                     }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="siteTagline">Site Tagline</Label>
+                  <Label htmlFor="smtpPort">SMTP Port</Label>
                   <Input
-                    id="siteTagline"
-                    placeholder="Your assessment platform"
-                    value={settings.general?.siteTagline || ""}
+                    id="smtpPort"
+                    type="number"
+                    placeholder="587"
+                    value={settings.smtp?.port || 587}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        general: { ...settings.general, siteTagline: e.target.value },
+                        smtp: { ...settings.smtp, port: parseInt(e.target.value) },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Use SSL/TLS</Label>
+                  <p className="text-sm text-muted-foreground">Enable secure connection (port 465 typically uses SSL)</p>
+                </div>
+                <Switch
+                  checked={settings.smtp?.secure || false}
+                  onCheckedChange={(checked) =>
+                    setSettings({
+                      ...settings,
+                      smtp: { ...settings.smtp, secure: checked },
+                    })
+                  }
+                />
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtpUser">SMTP Username</Label>
+                  <Input
+                    id="smtpUser"
+                    placeholder="your-email@gmail.com"
+                    value={settings.smtp?.user || ""}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        smtp: { ...settings.smtp, user: e.target.value },
                       })
                     }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="siteEmail">Site Email</Label>
+                  <Label htmlFor="smtpPassword">SMTP Password</Label>
                   <Input
-                    id="siteEmail"
+                    id="smtpPassword"
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={settings.smtp?.password || ""}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        smtp: { ...settings.smtp, password: e.target.value },
+                      })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">For Gmail, use App Password instead of regular password</p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtpFromEmail">From Email Address</Label>
+                  <Input
+                    id="smtpFromEmail"
                     type="email"
-                    placeholder="support@example.com"
-                    value={settings.general?.siteEmail || ""}
+                    placeholder="noreply@example.com"
+                    value={settings.smtp?.fromEmail || ""}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        general: { ...settings.general, siteEmail: e.target.value },
+                        smtp: { ...settings.smtp, fromEmail: e.target.value },
                       })
                     }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="sitePhone">Site Phone</Label>
+                  <Label htmlFor="smtpFromName">From Name</Label>
                   <Input
-                    id="sitePhone"
-                    placeholder="+1234567890"
-                    value={settings.general?.sitePhone || ""}
+                    id="smtpFromName"
+                    placeholder="Exam System"
+                    value={settings.smtp?.fromName || ""}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        general: { ...settings.general, sitePhone: e.target.value },
+                        smtp: { ...settings.smtp, fromName: e.target.value },
                       })
                     }
                   />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="siteAddress">Site Address</Label>
-                <Textarea
-                  id="siteAddress"
-                  placeholder="Your office address"
-                  rows={3}
-                  value={settings.general?.siteAddress || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      general: { ...settings.general, siteAddress: e.target.value },
-                    })
-                  }
-                />
-              </div>
-
-              <Separator />
-              <h3 className="text-lg font-semibold">Branding</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="logoUrl">Logo URL</Label>
-                  <Input
-                    id="logoUrl"
-                    placeholder="https://example.com/logo.png"
-                    value={settings.general?.logoUrl || ""}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        general: { ...settings.general, logoUrl: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="faviconUrl">Favicon URL</Label>
-                  <Input
-                    id="faviconUrl"
-                    placeholder="https://example.com/favicon.ico"
-                    value={settings.general?.faviconUrl || ""}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        general: { ...settings.general, faviconUrl: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <Label htmlFor="copyrightText">Copyright Text</Label>
-                <Input
-                  id="copyrightText"
-                  placeholder={`© ${new Date().getFullYear()} Exam System. All rights reserved.`}
-                  value={settings.general?.copyrightText || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      general: { ...settings.general, copyrightText: e.target.value },
-                    })
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">Displayed in the footer of public pages</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* SEO Settings Tab */}
-        <TabsContent value="seo" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-              <CardDescription>Configure search engine optimization and meta tags</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label htmlFor="seoTitle">Page Title</Label>
-                <Input
-                  id="seoTitle"
-                  placeholder="Exam System - Online Assessment Platform"
-                  value={settings.seo?.title || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      seo: { ...settings.seo, title: e.target.value },
-                    })
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">Recommended: 50-60 characters</p>
-              </div>
-
-              <div>
-                <Label htmlFor="seoDescription">Meta Description</Label>
-                <Textarea
-                  id="seoDescription"
-                  placeholder="Describe your exam platform"
-                  rows={3}
-                  value={settings.seo?.description || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      seo: { ...settings.seo, description: e.target.value },
-                    })
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">Recommended: 150-160 characters</p>
-              </div>
-
-              <div>
-                <Label htmlFor="seoKeywords">Keywords</Label>
-                <Textarea
-                  id="seoKeywords"
-                  placeholder="exam, assessment, online, test, education"
-                  rows={3}
-                  value={settings.seo?.keywords || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      seo: { ...settings.seo, keywords: e.target.value },
-                    })
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">Comma-separated keywords for SEO</p>
-              </div>
-
-              <div>
-                <Label htmlFor="seoOgImage">Open Graph Image URL</Label>
-                <Input
-                  id="seoOgImage"
-                  placeholder="https://example.com/og-image.png"
-                  value={settings.seo?.ogImage || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      seo: { ...settings.seo, ogImage: e.target.value },
-                    })
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Used when sharing on social media (1200x630px recommended)
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>
-                <Input
-                  id="googleAnalyticsId"
-                  placeholder="G-XXXXXXXXXX"
-                  value={settings.seo?.googleAnalyticsId || ""}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      seo: { ...settings.seo, googleAnalyticsId: e.target.value },
-                    })
-                  }
-                />
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">Common SMTP Providers</h4>
+                <ul className="text-sm space-y-1 text-muted-foreground">
+                  <li><strong>Gmail:</strong> smtp.gmail.com:587 (Use App Password)</li>
+                  <li><strong>Outlook:</strong> smtp-mail.outlook.com:587</li>
+                  <li><strong>SendGrid:</strong> smtp.sendgrid.net:587</li>
+                  <li><strong>Mailgun:</strong> smtp.mailgun.org:587</li>
+                  <li><strong>Amazon SES:</strong> email-smtp.[region].amazonaws.com:587</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
