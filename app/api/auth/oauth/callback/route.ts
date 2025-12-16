@@ -202,9 +202,14 @@ export async function GET(request: NextRequest) {
       name: user.full_name,
     });
 
+    // Automatically detect the domain from the request
+    const host = request.headers.get('host') || 'localhost:3000'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const baseUrl = `${protocol}://${host}`
+
     // Set auth cookie and redirect
     const response = NextResponse.redirect(
-      new URL(`${process.env.NEXT_PUBLIC_APP_URL}/oauth-success?token=${authToken}&isNewUser=${isNewUser}`)
+      new URL(`${baseUrl}/oauth-success?token=${authToken}&isNewUser=${isNewUser}`)
     );
 
     response.cookies.set('auth_token', authToken, {
@@ -216,9 +221,13 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('[OAuth Callback API] Error:', error);
+    // Automatically detect the domain for error redirect
+    const host = request.headers.get('host') || 'localhost:3000'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const baseUrl = `${protocol}://${host}`
+    
     return NextResponse.redirect(
-      new URL(`${process.env.NEXT_PUBLIC_APP_URL}/login?error=oauth_failed`)
+      new URL(`${baseUrl}/login?error=oauth_failed`)
     );
   }
 }
